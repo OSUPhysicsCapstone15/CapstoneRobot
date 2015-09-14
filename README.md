@@ -1,2 +1,2 @@
 # CapstoneRobot
-# Authors: Lucas Beaufore, Liz, Alec, Yuriy
+# Authors: Lucas Beaufore, Liz, Alec Michael, Yuriy
