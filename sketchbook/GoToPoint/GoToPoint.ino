@@ -16,24 +16,31 @@ ros::Publisher beaconRequest("beacon_requestM",&readyForData);
 
 
 
-//Initialize PID parameters
+//Initialize PID parameters:
+// robot(countratio,wheel diameter,wheel-to-wheel distance,Kp,Ki,Kd,Kdiff,Kidiff)
 PID robot(600, 8, 10, .01, .01, .01, .01,.5);
 
-// Function that uses beacon data to determine and change robot's direction
+// Function that uses beacon data to determine the direction the robot is facing
+// Turns the robot and sends it forward 150 (cm?) at speed 15 
 void beaconCallback( const std_msgs::Float64& angle)
 {
   //readyForData.data=false;
   //beaconRequest.publish(&readyForData);
   //3 feet 
   double distance=150;
+  // If the needed angle is more than 30 degrees off, turn and check again
   if (angle.data>=30 || angle.data<=-30)
   {
     //turnInPlace(0,45,150);
-  }else if(angle.data>0){
+  }
+  // If the angle is >0, turn right til straight
+  else if(angle.data>0){
     //Turn to the angle and go
     turnInPlace(0,angle.data,250);
     robot.movexinches(distance, 15);
-  }else{
+  }
+  // If the angle is <0, turn left til straight
+  else{
     turnInPlace(1,angle.data,250);
     robot.movexinches(distance, 15);
   }
@@ -43,9 +50,9 @@ void beaconCallback( const std_msgs::Float64& angle)
     
 }
 
-//Command 0=straight data[1]=distance data[2]=speed
-//Command 1=turnRight data[1]=angle data[2]=speed
-//Command 2=turnLeft data[1]=angle data[2]=speed
+//Command 0=straight   data[1]=distance  data[2]=speed
+//Command 1=turnRight  data[1]=angle     data[2]=speed
+//Command 2=turnLeft   data[1]=angle     data[2]=speed
 void commandCallback(const std_msgs::Float64MultiArray& command)
 {
   if(command.data[0]==0)
