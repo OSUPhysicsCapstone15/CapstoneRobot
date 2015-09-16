@@ -19,7 +19,7 @@ ros::Publisher beaconRequest("beacon_requestM",&readyForData);
 //Initialize PID parameters
 PID robot(600, 8, 10, .01, .01, .01, .01,.5);
 
-
+// Function that uses beacon data to determine and change robot's direction
 void beaconCallback( const std_msgs::Float64& angle)
 {
   //readyForData.data=false;
@@ -58,101 +58,121 @@ void commandCallback(const std_msgs::Float64MultiArray& command)
   }
 }
 
+
+// Function that turns the robot without moving
+// dir={left of right} 
+// angle={desired turn angle}
+// setspeed={speed at which the turn takes place}
 void turnInPlace(int dir, double angle, double setspeed){
   int state = 0, laststate = 0, pulseratio = 600;
-double wheeldiam = 8;
+  double wheeldiam = 8;
 
-double m1speed = setspeed, m2speed = setspeed;
-if(dir==1){
-m1speed *= -1;  // 1 means left
-}
-else {
-m2speed *= -1; // not 1 means right
-}
+  double m1speed = setspeed, m2speed = setspeed;
 
-int countmax = pulseratio*angle/180*36/(wheeldiam);
-int counter = 0;
+  // Set wheels to turn in opposing directions at speed "setspeed"
+  if(dir==1){
+    m1speed *= -1;  // 1 means left
+  }
+  else {
+    m2speed *= -1; // not 1 means right
+  }
 
-md1.setM1Speed(m1speed);
-md1.setM2Speed(m2speed);
+  // Converts given angle to encoder counts
+  int countmax = pulseratio*angle/180*36/(wheeldiam);
+  int counter = 0;
+  
+  // Sets the wheels to turn at equal but opposite speeds
+  md1.setM1Speed(m1speed);
+  md1.setM2Speed(m2speed);
 
-while(counter < countmax){
-  if(analogRead(A0) > 500)
-    {
-      state = 1;
-    }
+  // this loop counts the shaft encoder pulses and stops when it thinks the turn is complete
+  while(counter < countmax){
+    if(analogRead(A0) > 500)
+      {
+        state = 1;
+      }
     else
-    {
-      state = 0;
-    }
-  if (laststate != state)
-    {
-      counter++;
-    }
+      {
+        state = 0;
+      }
+    if (laststate != state)
+      {
+        counter++;
+      }
     laststate = state;
-}  // this loop counts the shaft encoder pulses
+  }  
 
-md1.setM1Speed(0);
-md1.setM2Speed(0);
+  // Reset the wheel speeds to zero
+  md1.setM1Speed(0);
+  md1.setM2Speed(0);
 }
 
+
+// Function that makes the robot turn right by changing the left wheel's speed
 void turnRight(double angle, double setspeed)
 {
-int state = 0, laststate = 0, pulseratio = 600;
-double wheeldiam = 8;
+  int state = 0, laststate = 0, pulseratio = 600;
+  double wheeldiam = 8;
 
-int countmax = pulseratio*angle/180*36*2/(3.1415927*wheeldiam);
-int counter = 0;
+  int countmax = pulseratio*angle/180*36*2/(3.1415927*wheeldiam);
+  int counter = 0;
 
-md1.setM2Speed(setspeed);
+  // Set left wheels speed 
+  md1.setM2Speed(setspeed);
 
-while(counter < countmax){
-  if(analogRead(A1) > 500)
-    {
-      state = 1;
-    }
+  // This loop counts the shaft encoder pulses
+  while(counter < countmax){
+    if(analogRead(A1) > 500)
+      {
+        state = 1;
+      }
     else
-    {
-      state = 0;
-    }
-  if (laststate != state)
-    {
-      counter++;
-    }
-    laststate = state;
-}  // this loop counts the shaft encoder pulses
+      {
+        state = 0;
+      }
+    if (laststate != state)
+      {
+        counter++;
+      }
+      laststate = state;
+  }  
 
-md1.setM2Speed(0);
+  // Returns left wheel speed to zero
+  md1.setM2Speed(0);
 }
 
 
+// Function that makes the robot turn left by changing the right wheel's speed
 void turnLeft(double angle, double setspeed)
 {
-int state = 0, laststate = 0, pulseratio = 600;
-double wheeldiam = 8;
+  int state = 0, laststate = 0, pulseratio = 600;
+  double wheeldiam = 8;
 
-int countmax = pulseratio*angle/180*36*2/(3.1415927*wheeldiam);
-int counter = 0;
+  int countmax = pulseratio*angle/180*36*2/(3.1415927*wheeldiam);
+  int counter = 0;
+  
+  // Sets the right wheel speed
+  md1.setM1Speed(setspeed);
 
-md1.setM1Speed(setspeed);
-
-while(counter < countmax){
-  if(analogRead(A0) > 500)
-    {
-      state = 1;
-    }
-    else
-    {
-      state = 0;
-    }
-  if (laststate != state)
-    {
-      counter++;
-    }
+  // This loop counts the shaft encoder pulses
+  while(counter < countmax){
+    if(analogRead(A0) > 500)
+      {
+        state = 1;
+      }
+     else
+      {
+        state = 0;
+      }
+    if (laststate != state)
+      {
+        counter++;
+      }
     laststate = state;
-}  // this loop counts the shaft encoder pulses
-
-md1.setM1Speed(0);
+  }  
+  
+  // Return the right wheel speed to zero
+  md1.setM1Speed(0);
 }
 
 ros::Subscriber<std_msgs::Float64> sub("beacon_data",&beaconCallback); 
