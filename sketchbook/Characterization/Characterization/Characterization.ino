@@ -22,7 +22,7 @@ ros::Publisher beaconRequest("beacon_requestM",&readyForData);
 
 //Initialize PID parameters:
 // robot(countratio,wheel diameter,wheel-to-wheel distance,Kp,Ki,Kd,Kdiff,Kidiff)
-PID robot(600, 8, 10, .01, .01, .01, .01,.5);
+PID robot(1200, 8, 10, .01, .01, .01, .01,.5);
 
 // Function that uses beacon data to determine the direction the robot is facing
 // Turns the robot and sends it forward 150 (cm?) at speed 15 
@@ -126,8 +126,6 @@ void turnRight(double angle, double setspeed)
   double wheeldiam = 8;
 
   int countmax = pulseratio*angle/180*36*2/(3.1415927*wheeldiam);
-  Serial.print("\nTurn right countmax: \n");
-  Serial.print(countmax);
   int counter = 0;
 
   // Set left wheels speed 
@@ -146,8 +144,6 @@ void turnRight(double angle, double setspeed)
     if (laststate != state)
       {
         counter++;
-        Serial.print("\nLeft wheel: ");
-        Serial.print(counter);
       }
       laststate = state;
   }  
@@ -164,8 +160,8 @@ void turnLeft(double angle, double setspeed)
   double wheeldiam = 8;
 
   int countmax = pulseratio*angle/180*36*2/(3.1415927*wheeldiam);
-  Serial.print("\nTurn left countmax: \n");
-  Serial.print(countmax);
+//  Serial.print("\nTurn left countmax: \n");
+//  Serial.print(countmax);
   int counter = 0;
   
   // Sets the right wheel speed
@@ -184,8 +180,8 @@ void turnLeft(double angle, double setspeed)
     if (laststate != state)
       {
         counter++;
-        Serial.print("\nRight wheel: ");
-        Serial.print(counter);
+//        Serial.print("\nRight wheel: ");
+//        Serial.print(counter);
       }
     laststate = state;
   }  
@@ -205,7 +201,6 @@ void setup()
 //  nh.subscribe(sub);
 //  nh.advertise(beaconRequest);
   md1.init();
-  Serial.begin(9600);
   
 }
 int count=0;
@@ -218,63 +213,23 @@ void loop()
   // Just go with no encoder feedback
 //  md1.setM1Speed(400);
 //  md1.setM2Speed(400);
-//  Serial.print("running");
 //  delay(10000);
 //  md1.setM1Speed(0);
 //  md1.setM2Speed(0);
-//  Serial.print("stopping");
 //  delay(5000);
-//  counter=0;
 //  md1.setM1Speed(400);
 //  md1.setM2Speed(-400);
-//  for(int n=0; n < 10000; n++){
-//  if(analogRead(A0) > 500)
-//      {
-//        state = 1;
-//      }
-//     else
-//      {
-//        state = 0;
-//      }
-//    if (laststate != state)
-//      {
-//        counter++;
-//        Serial.print("\nLeft wheel: ");
-//        Serial.print(counter);
-//      }
-//      delay(1);
-//      laststate=state;
-//  }
 //  delay(1000);
-//  counter=0;
 //  md1.setM1Speed(-400);
 //  md1.setM2Speed(400);
-//  for(int n=0; n < 10000; n++){
-//  if(analogRead(A1) > 500)
-//      {
-//        state = 1;
-//      }
-//     else
-//      {
-//        state = 0;
-//      }
-//    if (laststate != state)
-//      {
-//        counter++;
-//        Serial.print("\nRight wheel: ");
-//        Serial.print(counter);
-//      }
-//      delay(1);
-//      laststate=state;
-//  }
 //  delay(1000);
   // Move and turn with encoder feedback
-// delay(1000);
-// robot.movexinches(36,15);
  delay(1000);
- turnRight(30,250);
+ robot.movexinches(90,15);
  delay(1000);
- turnLeft(30,250);
+ turnInPlace(0,30,200);
+ delay(1000);
+ turnInPlace(1,30,100);
   
 }
 
