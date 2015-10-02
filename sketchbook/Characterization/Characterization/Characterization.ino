@@ -83,7 +83,7 @@ void turnInPlace(int dir, double angle, double setspeed) {
   double leftSpeed = setspeed, rightSpeed = setspeed;
 
   // Set wheels to turn in opposing directions at speed "setspeed"
-  if (dir == 1) {
+  if (dir == 0) {
     leftSpeed *= -1;  // 1 means left
   }
   else {
@@ -241,12 +241,12 @@ void loop()
   // Move and turn with encoder feedback
   // delay(1000);
   // robot.movexinches(90,15);
-  delay(1000);
-  turnRight(60, 150);
-  //turnInPlace(0,360,200);
-  delay(1000);
-  turnLeft(60, 150);
-  //turnInPlace(1,360,200);
+  delay(2000);
+  //turnRight(60, -150);
+  turnInPlace(0,360,150);
+  delay(2000);
+  //turnLeft(60, -150);
+  turnInPlace(1,360,200);
 
 }
 
