@@ -75,7 +75,7 @@ void commandCallback(const std_msgs::Float64MultiArray& command)
 // angle={desired turn angle}
 // setspeed={speed at which the turn takes place}
 void turnInPlace(int dir, double angle, double setspeed){
-  int state = 0, laststate = 0, pulseratio = 600;
+  int state = 0, laststate = 0, pulseratio = 1200;
   double wheeldiam = 8;
 
   double m1speed = setspeed, m2speed = setspeed;
@@ -224,12 +224,12 @@ void loop()
 //  md1.setM2Speed(400);
 //  delay(1000);
   // Move and turn with encoder feedback
+// delay(1000);
+// robot.movexinches(90,15);
  delay(1000);
- robot.movexinches(90,15);
+ turnInPlace(0,360,250);
  delay(1000);
- turnInPlace(0,30,200);
- delay(1000);
- turnInPlace(1,30,100);
+ turnInPlace(1,360,250);
   
 }
 
