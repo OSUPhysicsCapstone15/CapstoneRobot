@@ -20,7 +20,7 @@ ros::Publisher beaconRequest("beacon_requestM", &readyForData);
 // Static constants
 static int pulseRatio = 1200; // Number of encoder counts per rotation
 static double wheelDiameter = 7.75; // Diameter of the wheels in inches
-static double wheelBase = 36; // Distance between wheels in inches
+static double wheelBase = 38; // Distance between wheels in inches
 
 //Initialize PID parameters:
 // robot(countratio,wheel diameter,wheel-to-wheel distance,Kp,Ki,Kd,Kdiff,Kidiff)
@@ -79,15 +79,17 @@ void commandCallback(const std_msgs::Float64MultiArray& command)
 // setspeed={speed at which the turn takes place}
 void turnInPlace(int dir, double angle, double setspeed) {
   int state = 0, laststate = 0;
-
+  int encoder=0;
   double leftSpeed = setspeed, rightSpeed = setspeed;
 
   // Set wheels to turn in opposing directions at speed "setspeed"
   if (dir == 0) {
     leftSpeed *= -1;  // 1 means left
+    encoder=A0;
   }
   else {
     rightSpeed *= -1; // not 1 means right
+    encoder=A1;
   }
 
   // Converts given angle to encoder counts
@@ -100,7 +102,7 @@ void turnInPlace(int dir, double angle, double setspeed) {
 
   // this loop counts the shaft encoder pulses and stops when it thinks the turn is complete
   while (counter < countmax) {
-    if (analogRead(A0) > 500) // if we read a pulse
+    if (analogRead(encoder) > 500) // if we read a pulse
     {
       state = 1;
     }
@@ -242,10 +244,10 @@ void loop()
   // delay(1000);
   // robot.movexinches(90,15);
   delay(2000);
-  //turnRight(60, -150);
-  turnInPlace(0,360,150);
+//  turnRight(60, -150);
+  turnInPlace(0,360,200);
   delay(2000);
-  //turnLeft(60, -150);
+//  turnLeft(60, -150);
   turnInPlace(1,360,200);
 
 }
