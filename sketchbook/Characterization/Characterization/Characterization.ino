@@ -56,7 +56,8 @@ void setup()
 }
 
 void loop () {
-  robot.movexinches(36, 130);
+  md1.setM1Speed(130);
+  md1.setM2Speed(130);
   delay(5000);
 }
 
