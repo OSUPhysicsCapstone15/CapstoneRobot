@@ -18,14 +18,14 @@ std_msgs::Bool readyForData;
 ros::Publisher beaconRequest("beacon_requestM", &readyForData);
 
 // Static constants
-static int pulseRatio = 1200; // Number of encoder counts per rotation
+static int pulseRatio = 600; // Number of encoder counts per rotation (or 1200?)
 static double wheelDiameter = 7.75; // Diameter of the wheels in inches
 static double wheelBase = 38; // Distance between wheels in inches
 
 // Global Variables
 long long countR, countL; // Encoder count
 bool stateR, stateL, lastStateR, lastStateL, left, right;
-double currentAngle, targetAngle; // The current angle of the robot, relative to start. Want to use gyro for this eventually
+double currentAngle, targetAngle, currentDistance, targetDistance; // The current angle of the robot, relative to start. Want to use gyro for this eventually
 unsigned long lastTime; // Last recorded time in milliseconds
 
 // Function prototypes
@@ -46,42 +46,56 @@ void setup()
   //Initialize PID parameters:
   PID robot(pulseRatio, wheelDiameter, wheelBase, .01, .01, .01, .01, .5); // Wheel diameter used to be set to 10, unsure of why
   zeroEncoders();
-  currentAngle = 0;
   left = 0;
   right = 0;
   lastTime = millis();
-  targetAngle = 45; // Dangerous to have this here, but used in testing
+  targetDistance = 36;
 }
 
 // This code will run continuously while the arduino is powered
 void loop()
 {
-  /*if(millis() - lastTime > 10000){
-    targetAngle = -targetAngle;
+  if(millis() - lastTime > 10000){
     zeroEncoders();
+    targetDistance = -targetDistance;
     lastTime = millis();
-  }*/
+  }
 
+  // Figure out what the motors need to do
   if(abs(targetAngle - currentAngle) > 5) { // With 5 degrees of precision
     if(targetAngle > currentAngle) {
-      left = 0;
-      right = 1;
-    } else {
       left = 1;
       right = 0;
+    } else {
+      left = 0;
+      right = 1;
+    }
+  } else if(abs(targetDistance - currentDistance) > 12) { // With 12 inches of precision
+    double deltaDistance = targetDistance - currentDistance;
+    if(targetDistance > currentDistance) {
+      //robot.movexinches(command.data[1], command.data[2]);
+      left = 1;
+      right = 1;
+    } else {
+      left = -1;
+      right = -1;
     }
   } else {
     left = 0;
     right = 0;
   }
   
-  if (left) {
+  /*if (right) {
     turnLeftPivot(120);
-  } else if (right) {
+  } else if (left) {
     turnRightPivot(120);
   } else {
     stopMotors();
-  }
+  }*/
+
+  // Update motors
+  md1.setM1Speed(left * 130);
+  md1.setM2Speed(right * 130);
   
   // Update encoders
   stateL = (analogRead(A0) > 500); 
@@ -96,6 +110,7 @@ void loop()
   }
   lastStateR = stateR;
   currentAngle = 360.0 * (encoderToDistance(countL)-encoderToDistance(countR))/(3.14159*wheelDiameter);
+  currentDistance = (encoderToDistance(countR) + encoderToDistance(countL))/2;
 }
 
 void stopMotors() {
@@ -126,6 +141,10 @@ void zeroEncoders() {
   lastStateL = 0;
   stateR = 0;
   stateL = 0;
+  currentAngle = 0;
+  targetAngle = 0;
+  currentDistance = 0;
+  targetDistance = 0;
 }
 
 double encoderToDistance(int counts) {
