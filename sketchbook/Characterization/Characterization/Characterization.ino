@@ -4,6 +4,7 @@
 
 #include <PID.h>
 #include <ros.h>
+#include <Encoder.h>
 #include <std_msgs/Int8.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Float64.h>
@@ -35,6 +36,8 @@ void turnLeftPivot(double setspeed);
 void stopMotors();
 void zeroEncoders();
 double encounterToDistance(int count);
+//PID robot(pulseRatio, wheelDiameter, wheelBase, .01, .01, .01, .01, .5); // Wheel diameter used to be set to 10, unsure of why
+Encoder myEnc(5, 6);
 
 void setup()
 {
@@ -42,25 +45,43 @@ void setup()
   //  nh.subscribe(sub);
   //  nh.advertise(beaconRequest);
   md1.init();
-  Serial.begin(9600);
+  //Serial.begin(9600);
   //Initialize PID parameters:
-  PID robot(pulseRatio, wheelDiameter, wheelBase, .01, .01, .01, .01, .5); // Wheel diameter used to be set to 10, unsure of why
   zeroEncoders();
   left = 0;
   right = 0;
   lastTime = millis();
   targetDistance = 36;
+  targetAngle = 0;
+}
+
+void loop () {
+  robot.movexinches(36, 130);
+  delay(5000);
 }
 
 // This code will run continuously while the arduino is powered
-void loop()
+/*void loop()
 {
-  if(millis() - lastTime > 10000){
-    zeroEncoders();
+  /*if(millis() - lastTime > 10000){
     targetDistance = -targetDistance;
     lastTime = millis();
+    Serial.print("Switiching to: ");
+    Serial.print(targetDistance);
+    Serial.print("\nAnd we are at: ");
+    Serial.print(currentDistance);
+    Serial.print("\n\n");
   }
-
+  if(millis() - lastTime > 1000){
+    targetDistance = -targetDistance;
+    lastTime = millis();
+    Serial.print("We are at: ");
+    Serial.print(currentDistance);
+    Serial.print("\nWith angle: ");
+    Serial.print(currentAngle );
+    Serial.print("\n\n");
+  }
+  currentAngle = 0;
   // Figure out what the motors need to do
   if(abs(targetAngle - currentAngle) > 5) { // With 5 degrees of precision
     if(targetAngle > currentAngle) {
@@ -85,13 +106,14 @@ void loop()
     right = 0;
   }
   
+  
   /*if (right) {
     turnLeftPivot(120);
   } else if (left) {
     turnRightPivot(120);
   } else {
     stopMotors();
-  }*/
+  }
 
   // Update motors
   md1.setM1Speed(left * 130);
@@ -111,7 +133,7 @@ void loop()
   lastStateR = stateR;
   currentAngle = 360.0 * (encoderToDistance(countL)-encoderToDistance(countR))/(3.14159*wheelDiameter);
   currentDistance = (encoderToDistance(countR) + encoderToDistance(countL))/2;
-}
+}*/
 
 void stopMotors() {
   md1.setM1Speed(0);
@@ -142,9 +164,9 @@ void zeroEncoders() {
   stateR = 0;
   stateL = 0;
   currentAngle = 0;
-  targetAngle = 0;
+  //targetAngle = 0;
   currentDistance = 0;
-  targetDistance = 0;
+  //targetDistance = 0;
 }
 
 double encoderToDistance(int counts) {
