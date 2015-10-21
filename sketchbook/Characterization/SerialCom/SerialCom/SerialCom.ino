@@ -1,6 +1,6 @@
 /*
   Example Bluetooth Serial Passthrough Sketch
- by: Jim Lindblom
+ by: Jim Lindblom, Edited by Capstone OSU
  SparkFun Electronics
  date: February 26, 2013
  license: Public domain
@@ -9,6 +9,14 @@
  communicate at 9600 bps (from 115200), and passes any serial
  data between Serial Monitor and bluetooth module.
  */
+
+#include <PID.h>
+#include <ros.h>
+#include <std_msgs/Int8.h>
+#include <std_msgs/String.h>
+#include <std_msgs/Float64.h>
+#include <std_msgs/Float64MultiArray.h>
+#include <std_msgs/Bool.h>
 #include <SoftwareSerial.h> 
 #include <Encoder.h>
 #include "DualVNH5019MotorShield.h"
@@ -18,8 +26,24 @@ int bluetoothTx = 3;  // TX-O pin of bluetooth mate, Arduino D2
 int bluetoothRx = 5;  // RX-I pin of bluetooth mate, Arduino D3
 
 DualVNH5019MotorShield md1;
+ros::NodeHandle  nh;
+std_msgs::Bool readyForData;
+ros::Publisher beaconRequest("beacon_requestM", &readyForData);
+
+// Static constants
+static int pulseRatio = 600; // Number of encoder counts per rotation (or 1200?)
+static double wheelDiameter = 7.75; // Diameter of the wheels in inches
+static double wheelBase = 38; // Distance between wheels in inches
+
+// Global Variables
+long long countR, countL; // Encoder count
+bool stateR, stateL, lastStateR, lastStateL, left, right;
+double currentAngle, targetAngle, currentDistance, targetDistance; // The current angle of the robot, relative to start. Want to use gyro for this eventually
+unsigned long lastTime; // Last recorded time in milliseconds
 
 SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
+void turnLeft(double angle, double setspeed);
+void turnRight(double angle, double setspeed);
 
 void setup()
 {
@@ -47,16 +71,25 @@ void loop()
   { 
     // Send any characters the bluetooth prints to the serial monitor
     int command=(int)bluetooth.read();
-    if(command==179){ // If "g" is read
+    if(command==103){ // If "g" is read
       Serial.println("Motors on.");
-      md1.setM1Speed(150);
-      md1.setM2Speed(150);
+      md1.setM1Speed(180);
+      md1.setM2Speed(180);
     }
-    else if (command==181||command==183) { // If "k" is read
+    else if (command==107) { // If "k" is read
       Serial.println("Motors off.");
       md1.setM1Speed(0);
       md1.setM2Speed(0);
     }
+    else if (command==108) { // If "l" is read
+      Serial.println("l");
+      turnLeft(45, 170);
+    }
+    else if (command==114) { // If "r" is read
+      Serial.println("r");
+      turnRight(45, 170);
+    }
+    Serial.println((int)command);
   }
 //  if(Serial.available())  // If stuff was typed in the serial monitor
 //  {
@@ -64,5 +97,74 @@ void loop()
 //    bluetooth.print((char)Serial.read());
 //  }
   // and loop forever and ever!
+}
+
+// Function that makes the robot turn left by changing the right wheel's speed
+void turnLeft(double angle, double setspeed)
+{
+  int state = 0, laststate = 0;
+
+  int countmax = (2*pulseRatio*wheelBase*(angle/360)/wheelDiameter);
+  Serial.print("\nTurn left countmax: \n");
+  Serial.print(countmax);
+  int counter = 0;
+
+  // Sets the right wheel speed
+  md1.setM2Speed(setspeed);
+
+  // This loop counts the shaft encoder pulses
+  while (counter < countmax) {
+    if (analogRead(A1) > 500)
+    {
+      state = 1;
+    }
+    else
+    {
+      state = 0;
+    }
+    if (laststate != state)
+    {
+      counter++;
+              //Serial.print("\nRight wheel: ");
+              //Serial.print(counter);
+    }
+    laststate = state;
+  }
+  md1.setM2Speed(0);
+}
+  
+// Function that makes the robot turn right by changing the left wheel's speed
+void turnRight(double angle, double setspeed)
+{
+  int state = 0, laststate = 0;
+
+  int countmax = (2*pulseRatio*wheelBase*(angle/360)/wheelDiameter);
+  int counter = 0;
+  int i = 0;
+
+  // Set left wheels speed
+  md1.setM1Speed(setspeed);
+
+  // This loop counts the shaft encoder pulses
+  while (counter < countmax) {
+    if (analogRead(A0) > 500)
+    {
+      state = 1;
+    }
+    else
+    {
+      state = 0;
+    }
+    if (laststate != state)
+    {
+      counter++;
+    }
+    laststate = state;
+    i++;
+  }
+  md1.setM1Speed(0);
+
+  // Returns left wheel speed to zero
+  md1.setM1Speed(0);
 }
 
