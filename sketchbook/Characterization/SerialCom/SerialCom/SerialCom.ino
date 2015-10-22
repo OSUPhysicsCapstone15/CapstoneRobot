@@ -30,10 +30,14 @@ ros::NodeHandle  nh;
 std_msgs::Bool readyForData;
 ros::Publisher beaconRequest("beacon_requestM", &readyForData);
 
+
+
 // Static constants
 static int pulseRatio = 600; // Number of encoder counts per rotation (or 1200?)
-static double wheelDiameter = 7.75; // Diameter of the wheels in inches
+static double wheelDiameter = 7.5; // 7.75 real wheel diameter
 static double wheelBase = 38; // Distance between wheels in inches
+
+PID robot(pulseRatio, wheelDiameter, wheelBase, .01, .01, .01, .01, .5); // Wheel diameter used to be set to 10, unsure of why
 
 // Global Variables
 long long countR, countL; // Encoder count
@@ -73,8 +77,7 @@ void loop()
     int command=(int)bluetooth.read();
     if(command==103){ // If "g" is read
       Serial.println("Motors on.");
-      md1.setM1Speed(180);
-      md1.setM2Speed(180);
+      goForward(27, 150);
     }
     else if (command==107) { // If "k" is read
       Serial.println("Motors off.");
@@ -166,5 +169,82 @@ void turnRight(double angle, double setspeed)
 
   // Returns left wheel speed to zero
   md1.setM1Speed(0);
+}
+
+void goForward(double inches, double setspeed) {
+  int stateL = 0, laststateL = 0;
+  int stateR = 0, laststateR = 0;
+  double setLspeed = setspeed, setRspeed = setspeed;
+
+  int countmax = inches/((3.14159)*wheelDiameter)*pulseRatio;
+  int counterL = 0, counterR=0;
+  int notdoneL = 1, notdoneR=1;
+  
+
+  // Set left wheels speed
+  md1.setM1Speed(setspeed+15);//l
+  md1.setM2Speed(setspeed);//r
+  Serial.print("TotalForward: ");
+  Serial.println(countmax);
+
+  // This loop counts the shaft encoder pulses
+  while (notdoneL || notdoneR) {
+    if (analogRead(A0) > 500)
+    {
+      stateL = 1;
+    }
+    else
+    {
+      stateL = 0;
+    }
+    if (laststateL != stateL && stateL)
+    {
+      counterL++;
+    }
+    laststateL = stateL;
+
+    if (analogRead(A1) > 500)
+    {
+      stateR = 1;
+    }
+    else
+    {
+      stateR = 0;
+    }
+    if (laststateR != stateR && stateR)
+    {
+      counterR++;
+    }
+    laststateR = stateR;
+
+    /*if(abs(counterL-counterR) > 50){
+      if(counterR>counterL && counterL<countmax){
+        md1.setM1Speed(setLspeed+20);
+      } else if (counterR<countmax) {
+        md1.setM2Speed(setRspeed+20);
+      }
+    } else {
+      md1.setM1Speed(setLspeed);
+      md1.setM2Speed(setRspeed);
+    }*/
+    
+    if(counterR >= countmax){
+      setRspeed = 0;
+      md1.setM2Speed(setRspeed);
+      notdoneR = 0;
+    }
+    if(counterL >= countmax){
+      setLspeed = 0;
+      md1.setM1Speed(setLspeed);
+      notdoneL = 0;
+    }
+  }
+  Serial.println(counterL);
+  Serial.println(counterR);
+  md1.setM1Speed(0);
+
+  // Returns left wheel speed to zero
+  md1.setM1Speed(0);
+
 }
 
