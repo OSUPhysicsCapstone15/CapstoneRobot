@@ -5,7 +5,7 @@ float scaledX, scaledY, scaledZ; // Scaled values for each axis
 void setup()
 {
   // Initialize serial communication at 115200 baud
-  Serial.begin(115200);
+  Serial.begin(9600);
 }
 
 double mapf(long x, long in_min, long in_max, long out_min, long out_max)
