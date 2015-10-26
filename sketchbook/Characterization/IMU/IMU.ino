@@ -7,9 +7,9 @@
  */
 
 int gyroPin = A0;               //Gyro is connected to analog pin 0
-float gyroVoltage = 3.3;         //Gyro is running at 5V
-float gyroZeroVoltage = 1.23;   //Gyro is zeroed at 1.3V
-float gyroSensitivity = .0025;  //Our example gyro is 2.5mV/deg/sec
+float gyroVoltage = 3.3;         //Gyro is running at 3.3V
+float gyroZeroVoltage = 1.23;   //Gyro is zeroed at 1.23V
+float gyroSensitivity = .0005;  //Typical sensitivity for our LPY550AL gyro is 0.5 mV/deg/sec(not amplified)
 float rotationThreshold  = 1;   //Minimum deg/sec to keep track of - helps with gyro drifting
 
 float currentAngle = 0;          //Keep track of our current angle
