@@ -8,6 +8,10 @@ void setup()
   Serial.begin(115200);
 }
 
+double mapf(long x, long in_min, long in_max, long out_min, long out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 
 void loop()
 {
@@ -18,7 +22,7 @@ void loop()
   
    if (micro_is_5V) // microcontroller runs off 5V
   {
-    scaledX = mapf(rawX, 0, 675, -scale, scale); // Mapf is Map() but not just for integers. 3.3/5 * 1023 =~ 675
+    scaledX = mapf(rawX, 0.0, 675, -scale, scale); // Mapf is Map() but not just for integers. 3.3/5 * 1023 =~ 675
   }
   else // microcontroller runs off 3.3V
   {
