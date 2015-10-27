@@ -21,19 +21,18 @@ void loop()
   int rawZ = analogRead(A2);
   
    if (micro_is_5V) // microcontroller runs off 5V
-  {
-    scaledX = mapf(rawX, 0.0, 675, -scale, scale); // Mapf is Map() but not just for integers. 3.3/5 * 1023 =~ 675
-  }
+    {
+      scaledX = mapf(rawX, 0.0, 675, -scale, scale); // Mapf is Map() but not just for integers. 3.3/5 * 1023 =~ 675
+    }
+    
   else // microcontroller runs off 3.3V
-  {
-    scaledX = mapf(rawX, 0.0, 1023, -scale, scale);
-  }
+    {
+      scaledX = mapf(rawX, 0.0, 1023, -scale, scale);
+    }
   
-  // Print out raw X,Y,Z accelerometer readings
-  Serial.print("X: "); Serial.println(rawX);
+  Serial.print("X: "); Serial.println(rawX);   // Print out raw X,Y,Z accelerometer readings
 
-  // Print out scaled X,Y,Z accelerometer readings
-  Serial.print("X: "); Serial.print(scaledX); Serial.println(" g");
+  Serial.print("X: "); Serial.print(scaledX); Serial.println(" g");     // Print out scaled X,Y,Z accelerometer readings
   
   delay(2000);
   
