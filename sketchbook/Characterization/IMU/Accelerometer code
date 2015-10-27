@@ -4,7 +4,6 @@ float scaledX, scaledY, scaledZ; // Scaled values for each axis
 
 void setup()
 {
-  // Initialize serial communication at 115200 baud
   Serial.begin(9600);
 }
 
