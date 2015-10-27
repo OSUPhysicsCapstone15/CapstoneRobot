@@ -26,7 +26,7 @@ void loop()
   }
   else // microcontroller runs off 3.3V
   {
-    scaledX = mapf(rawX, 0, 1023, -scale, scale);
+    scaledX = mapf(rawX, 0.0, 1023, -scale, scale);
   }
   
   // Print out raw X,Y,Z accelerometer readings
