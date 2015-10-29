@@ -1,16 +1,9 @@
 /* 
- * rosserial Subscriber Example
- * Blinks an LED on callback
+Arduino code to control the motors using input from ROS
  */
 
 #include <ros.h>
-// Include all the standard message types
-#include <std_msgs/Empty.h>
-#include <std_msgs/Int8.h>
-#include <std_msgs/String.h>
 #include <std_msgs/Float64.h>
-#include <std_msgs/Float64MultiArray.h>
-#include <std_msgs/Bool.h>
 // Initialize the motors
 #include "DualVNH5019MotorShield.h"
 DualVNH5019MotorShield md1;
@@ -27,6 +20,7 @@ ros::Subscriber<std_msgs::Float64> sub("Motors", &motorCallback );
 
 void setup()
 { 
+  mdl.init();
   nh.initNode();
   nh.subscribe(sub);
 }
