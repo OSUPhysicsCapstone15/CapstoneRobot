@@ -14,16 +14,21 @@ const int bluetoothRx = 5;  // RX-I pin of bluetooth mate, Arduino D3
 SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
 
 ros::NodeHandle nh;
+std_msgs::Float32 leftReturn_msg;
+std_msgs::Float32 rightReturn_msg;
+ros::Publisher pub_leftReturn("LeftReturn", &leftReturn_msg); // for nonmotor testing
+ros::Publisher pub_rightReturn("RightReturn", &rightReturn_msg); // for nonmotor testing
 
 void leftMotor(const std_msgs::Float32& msg){
   // Set the left motor speed given by ROS in the topic "Motors"
-md1.setM1Speed(msg.data);
-
+//md1.setM1Speed(msg.data);
+leftReturn_msg.data = msg.data; // for nonmotor testing
 }
 
 void rightMotor(const std_msgs::Float32& msg){
   // Set the right motor speed given by ROS in the topic "Motors"
-  md1.setM2Speed(msg.data);
+  //md1.setM2Speed(msg.data);
+  rightReturn_msg.data = msg.data; // for nonmotor testing
 }
 
 ros::Subscriber<std_msgs::Float32> subLeft("LeftMotors", &leftMotor);
@@ -38,6 +43,8 @@ void setup()
   nh.initNode();
   nh.subscribe(subLeft); // Subscribe to "LeftMotors"
   nh.subscribe(subRight); // Subscribe to "RightMotors"
+  nh.advertise(pub_leftReturn); // publish left motor value for testing
+  nh.advertise(pub_rightReturn); // publish right motor value for testing
 }
 
 void loop()
