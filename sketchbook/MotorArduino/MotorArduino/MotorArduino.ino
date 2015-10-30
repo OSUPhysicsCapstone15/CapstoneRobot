@@ -31,6 +31,7 @@ ros::Subscriber<std_msgs::Float32> subRight("RightMotors", &rightMotor);
 
 void setup()
 { 
+  pinMode(13, OUTPUT);
   bluetooth.begin(115200);
   // Initialize the motors and the ROS node
   md1.init();
@@ -44,10 +45,13 @@ void loop()
   if(bluetooth.available())
   {
     int command=(int)bluetooth.read();
+    digitalWrite(13, LOW);
     if (command==107) { // If "k" is read
         md1.setM1Speed(0);
         md1.setM2Speed(0);
-        while (command != 103){}
+        digitalWrite(13,HIGH);
+        while (command != 103) // Until "g" is read
+        {command = (int)bluetooth.read();}
       }
   }
   nh.spinOnce(); // Check for updates with ROS

@@ -10,7 +10,9 @@
 // Set up ROS publishing
 ros::NodeHandle  nh;
 std_msgs::Int8 leftencoder_msg;
-ros::Publisher pub_encoders("Encoders", &leftencoder_msg);
+std_msgs::Int8 rightencoder_msg;
+ros::Publisher pub_LeftEncoder("LeftEncoder", &leftencoder_msg);
+ros::Publisher pub_RightEncoder("RightEncoder", &rightencoder_msg);
 
 Encoder leftEnc(A0, A2); // Create left encoder object
 Encoder rightEnc(A1, A3); // Create right encoder object
@@ -23,7 +25,8 @@ int oldRightPos = -999;
 void setup()
 {  
   nh.initNode();
-  nh.advertise(pub_encoders);
+  nh.advertise(pub_LeftEncoder);
+  nh.advertise(pub_RightEncoder);
 }
 
 
@@ -37,7 +40,7 @@ void loop()
   }
   if (newRightPos != oldRightPos) {
     oldRightPos = newRightPos;
-//    rightencoders_msg.data = newRightPos;
+    rightencoder_msg.data = newRightPos;
   }
   nh.spinOnce();
 }
