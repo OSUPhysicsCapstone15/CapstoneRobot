@@ -23,12 +23,14 @@ void leftMotor(const std_msgs::Float32& msg){
   // Set the left motor speed given by ROS in the topic "Motors"
 //md1.setM1Speed(msg.data);
 leftReturn_msg.data = msg.data; // for nonmotor testing
+pub_leftReturn.publish( &leftReturn_msg);
 }
 
 void rightMotor(const std_msgs::Float32& msg){
   // Set the right motor speed given by ROS in the topic "Motors"
   //md1.setM2Speed(msg.data);
   rightReturn_msg.data = msg.data; // for nonmotor testing
+  pub_rightReturn.publish( &rightReturn_msg);
 }
 
 ros::Subscriber<std_msgs::Float32> subLeft("LeftMotors", &leftMotor);
@@ -37,7 +39,7 @@ ros::Subscriber<std_msgs::Float32> subRight("RightMotors", &rightMotor);
 void setup()
 { 
   pinMode(13, OUTPUT);
-  bluetooth.begin(115200);
+  bluetooth.begin(115200);  // Android runs bluetooth at 115200 baud
   // Initialize the motors and the ROS node
   md1.init();
   nh.initNode();
@@ -52,12 +54,12 @@ void loop()
   if(bluetooth.available())
   {
     int command=(int)bluetooth.read();
-    digitalWrite(13, LOW);
-    if (command==107) { // If "k" is read
+    digitalWrite(13, LOW); // LED is off unless we're in pause mode
+    if (command==107) { // If "k" is read, stop the motors & activate LED
         md1.setM1Speed(0);
         md1.setM2Speed(0);
         digitalWrite(13,HIGH);
-        while (command != 103) // Until "g" is read
+        while (command != 103) // Pause until "g" is read
         {command = (int)bluetooth.read();}
       }
   }
