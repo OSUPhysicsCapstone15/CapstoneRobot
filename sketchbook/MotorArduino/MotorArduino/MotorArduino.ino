@@ -3,6 +3,7 @@ Arduino code to control the motors using input from ROS
  */
 
 #include <ros.h>
+#include <std_msgs/Float32.h>
 #include <std_msgs/Bool.h>
 #include <SoftwareSerial.h> 
 // Initialize the motors

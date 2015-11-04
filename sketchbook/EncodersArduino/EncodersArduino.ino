@@ -42,5 +42,7 @@ void loop()
     oldRightPos = newRightPos;
     rightencoder_msg.data = newRightPos;
   }
+  pub_LeftEncoder.publish(leftencoder_msg);
+  pub_RightEncoder.publish(rightencoder_msg);
   nh.spinOnce();
 }
