@@ -5,12 +5,12 @@
 
 #include <ros.h>
 #include <Encoder.h>
-#include <std_msgs/Int8.h>
+#include <std_msgs/Int32.h>
 
 // Set up ROS publishing
 ros::NodeHandle  nh;
-std_msgs::Int8 leftencoder_msg;
-std_msgs::Int8 rightencoder_msg;
+std_msgs::Int32 leftencoder_msg;
+std_msgs::Int32 rightencoder_msg;
 ros::Publisher pub_LeftEncoder("LeftEncoder", &leftencoder_msg);
 ros::Publisher pub_RightEncoder("RightEncoder", &rightencoder_msg);
 
@@ -24,6 +24,7 @@ int oldRightPos = -999;
 
 void setup()
 {  
+  Serial.begin(9600);
   nh.initNode();
   nh.advertise(pub_LeftEncoder);
   nh.advertise(pub_RightEncoder);
@@ -33,6 +34,8 @@ void setup()
 
 void loop()
 {
+  newLeftPos = leftEnc.read();
+  newRightPos = rightEnc.read();
   // If the encoder positions have changed, update their values with ROS
   if (newLeftPos != oldLeftPos) {
     oldLeftPos = newLeftPos;
@@ -42,7 +45,7 @@ void loop()
     oldRightPos = newRightPos;
     rightencoder_msg.data = newRightPos;
   }
-  pub_LeftEncoder.publish(leftencoder_msg);
-  pub_RightEncoder.publish(rightencoder_msg);
+  pub_LeftEncoder.publish( &leftencoder_msg);
+  pub_RightEncoder.publish( &rightencoder_msg);
   nh.spinOnce();
 }
