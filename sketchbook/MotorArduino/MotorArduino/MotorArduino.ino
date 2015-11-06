@@ -12,7 +12,7 @@ DualVNH5019MotorShield md1;
 
 const int bluetoothTx = 3;  // TX-O pin of bluetooth mate, Arduino D2
 const int bluetoothRx = 5;  // RX-I pin of bluetooth mate, Arduino D3
-boolean paused = true; // Whether or not the motors have received a paused command
+boolean paused = false; // Whether or not the motors have received a paused command
 SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
 
 ros::NodeHandle nh;
@@ -27,7 +27,7 @@ ros::Publisher pub_paused("Paused", &paused_msg); // report a paused command
 void leftMotor(const std_msgs::Float32& msg){
   // Set the left motor speed given by ROS in the topic "Motors"
   if (!paused) {
-    //md1.setM1Speed(msg.data);
+    md1.setM1Speed(msg.data);
     leftReturn_msg.data = msg.data;
     pub_leftReturn.publish( &leftReturn_msg);
   } else {
@@ -39,7 +39,7 @@ void leftMotor(const std_msgs::Float32& msg){
 void rightMotor(const std_msgs::Float32& msg){
   // Set the right motor speed given by ROS in the topic "Motors"
   if (!paused) {
-    //md1.setM2Speed(msg.data);
+    md1.setM2Speed(msg.data);
     rightReturn_msg.data = msg.data;
     pub_rightReturn.publish( &rightReturn_msg);
   } else {
@@ -64,7 +64,7 @@ void setup()
   nh.advertise(pub_leftReturn); // publish left motor value for testing
   nh.advertise(pub_rightReturn); // publish right motor value for testing
   nh.advertise(pub_paused);
-  paused = true;
+  paused = false;
 }
 
 void loop()

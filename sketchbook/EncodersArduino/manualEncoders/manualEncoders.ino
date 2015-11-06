@@ -26,6 +26,11 @@ void setup()
 {
   nh.initNode();  
   nh.advertise(pub_LeftEncoder);
+  nh.advertise(pub_RightEncoder);
+  lastStateR = 0;
+  lastStateL = 0;
+  countR = 2;
+  countL = 2;
 }
 
 void loop () {
@@ -37,7 +42,7 @@ void loop () {
     {
       stateL = 0;
     }
-    if (lastStateL != stateL)
+    if ((lastStateL != stateL) && stateL)
     {
       countL++;
     }
@@ -45,6 +50,25 @@ void loop () {
     if (countL % 10 == 0) {
        leftencoder_msg.data = countL; 
        pub_LeftEncoder.publish( &leftencoder_msg);
+       nh.spinOnce();
+    }
+    
+    if (analogRead(A3 ) > 500)
+    {
+      stateR = 1;
+    }
+    else
+    {
+      stateR = 0;
+    }
+    if ((lastStateR != stateR) && stateR)
+    {
+      countR++;
+    }
+    lastStateR = stateR;
+    if (countR % 10 == 0) {
+       rightencoder_msg.data = countR; 
+       pub_RightEncoder.publish( &rightencoder_msg);
        nh.spinOnce();
     }
 }
