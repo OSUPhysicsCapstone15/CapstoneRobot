@@ -4,7 +4,7 @@
 
 #include <ros.h>
 #include <std_msgs/Int32.h>
-
+#include <SoftwareSerial.h> 
 
 // Set up ROS publishing
 ros::NodeHandle  nh;
@@ -17,20 +17,32 @@ ros::Publisher pub_RightEncoder("RightEncoder", &rightencoder_msg);
 static int pulseRatio = 600; // Number of encoder counts per rotation (or 1200?)
 static double wheelDiameter = 7.75; // Diameter of the wheels in inches
 static double wheelBase = 38; // Distance between wheels in inches
+const int bluetoothTx = 3;  // TX-O pin of bluetooth mate, Arduino D2
+const int bluetoothRx = 5;  // RX-I pin of bluetooth mate, Arduino D3
+boolean paused = false; // Whether or not the motors have received a paused command
+SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
 
 // Global Variables
 long long countR, countL; // Encoder count
 bool stateR, stateL, lastStateR, lastStateL, left, right;
 
+void nothing(const std_msgs::Int32& msg) {
+}
+
+
+ros::Subscriber<std_msgs::Int32> notanything("Nothing", &nothing);
+
 void setup()
 {
   nh.initNode();  
+  nh.subscribe(notanything);
   nh.advertise(pub_LeftEncoder);
   nh.advertise(pub_RightEncoder);
   lastStateR = 0;
   lastStateL = 0;
-  countR = 2;
-  countL = 2;
+  countR = 0;
+  countL = 0;
+  nh.spinOnce();
 }
 
 void loop () {
