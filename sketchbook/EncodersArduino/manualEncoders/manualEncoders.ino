@@ -34,7 +34,7 @@ ros::Subscriber<std_msgs::Int32> fd("FreqDiv", &FreqDiv);
 void setup()
 {
   nh.initNode();  
-  nh.subscribe(notanything);
+  nh.subscribe(fd);
   nh.advertise(pub_LeftEncoder);
   nh.advertise(pub_RightEncoder);
   lastStateR = 0;
