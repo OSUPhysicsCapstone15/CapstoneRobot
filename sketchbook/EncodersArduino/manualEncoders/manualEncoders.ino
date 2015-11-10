@@ -1,6 +1,4 @@
-/* This code is meant to be used to characterize the robot.
-   The control functions are included from GoToPoint, so put
-   commands into void loop(){...} to make it do stuff */
+/* This code sends feedback from the encoders up to ROS */
 
 #include <ros.h>
 #include <std_msgs/Int32.h>
@@ -10,11 +8,14 @@
 ros::NodeHandle  nh;  
 std_msgs::Int32 leftencoder_msg;
 std_msgs::Int32 rightencoder_msg;
+std_msgs::Int32 confirmheartbeat_msg;
 ros::Publisher pub_LeftEncoder("LeftEncoder", &leftencoder_msg);
 ros::Publisher pub_RightEncoder("RightEncoder", &rightencoder_msg);
+ros::Publisher pub_confirmHeartbeat("Heartbeat", &confirmheartbeat_msg);
 
 // Static constants
 int freqDiv = 1;
+int heartbeat = 0;
 const int bluetoothTx = 3;  // TX-O pin of bluetooth mate, Arduino D2
 const int bluetoothRx = 5;  // RX-I pin of bluetooth mate, Arduino D3
 boolean paused = false; // Whether or not the motors have received a paused command
@@ -28,8 +29,12 @@ void FreqDiv(const std_msgs::Int32& msg) {
   freqDiv = msg.data;
 }
 
-
+void HeartbeatCheck(const std_msgs::Int32& msg) {
+  heartbeat = msg.data;
+}
 ros::Subscriber<std_msgs::Int32> fd("FreqDiv", &FreqDiv);
+ros::Subscriber<std_msgs::Int32> checkHeartbeat("Heartbeat", &HeartbeatCheck);
+
 
 void setup()
 {
@@ -45,6 +50,14 @@ void setup()
 }
 
 void loop () {
+  nh.spinOnce();
+  if (heartbeat != 0)
+    {
+      confirmheartbeat_msg.data=heartbeat;
+      pub_confirmHeartbeat.publish( &confirmheartbeat_msg);
+      heartbeat=0;
+    }
+      
   if (analogRead(A2 ) > 500)
     {
       stateL = 1;
