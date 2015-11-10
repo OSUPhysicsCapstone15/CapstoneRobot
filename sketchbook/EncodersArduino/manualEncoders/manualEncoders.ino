@@ -7,16 +7,14 @@
 #include <SoftwareSerial.h> 
 
 // Set up ROS publishing
-ros::NodeHandle  nh;
+ros::NodeHandle  nh;  
 std_msgs::Int32 leftencoder_msg;
 std_msgs::Int32 rightencoder_msg;
 ros::Publisher pub_LeftEncoder("LeftEncoder", &leftencoder_msg);
 ros::Publisher pub_RightEncoder("RightEncoder", &rightencoder_msg);
 
 // Static constants
-static int pulseRatio = 600; // Number of encoder counts per rotation (or 1200?)
-static double wheelDiameter = 7.75; // Diameter of the wheels in inches
-static double wheelBase = 38; // Distance between wheels in inches
+int freqDiv = 1;
 const int bluetoothTx = 3;  // TX-O pin of bluetooth mate, Arduino D2
 const int bluetoothRx = 5;  // RX-I pin of bluetooth mate, Arduino D3
 boolean paused = false; // Whether or not the motors have received a paused command
@@ -26,11 +24,12 @@ SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
 long long countR, countL; // Encoder count
 bool stateR, stateL, lastStateR, lastStateL, left, right;
 
-void nothing(const std_msgs::Int32& msg) {
+void FreqDiv(const std_msgs::Int32& msg) {
+  freqDiv = msg.data;
 }
 
 
-ros::Subscriber<std_msgs::Int32> notanything("Nothing", &nothing);
+ros::Subscriber<std_msgs::Int32> fd("FreqDiv", &FreqDiv);
 
 void setup()
 {
@@ -59,7 +58,7 @@ void loop () {
       countL++;
     }
     lastStateL = stateL;
-    if (countL % 10 == 0) {
+    if (countL % 10 == 0 || !(freqDiv)) {
        leftencoder_msg.data = countL; 
        pub_LeftEncoder.publish( &leftencoder_msg);
        nh.spinOnce();
@@ -78,7 +77,7 @@ void loop () {
       countR++;
     }
     lastStateR = stateR;
-    if (countR % 10 == 0) {
+    if (countR % 10 == 0 || !(freqDiv)) {
        rightencoder_msg.data = countR; 
        pub_RightEncoder.publish( &rightencoder_msg);
        nh.spinOnce();
