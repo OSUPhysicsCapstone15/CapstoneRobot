@@ -8,8 +8,8 @@ ros::NodeHandle nh;
 std_msgs::Bool finished_msg;
 ros::Publisher pub_finished("GrabFinished", &finished_msg); // Report back when retrieval is done
 
-void grab(const std_msgs::Bool& msg) {
-  if msg.data == true {
+void grabObject(const std_msgs::Bool& msg) {
+  if (msg.data == true) {
     /* Do retrieval stuff */
     finished_msg.data = true;
     pub_finished.publish( &finished_msg); // Report back that the retrieval is done
