@@ -1,5 +1,5 @@
 /* This code is a skeleton to implement ROS control of the retrieval arm */
-
+#define USE_USBCON
 #include <ros.h>
 #include <std_msgs/Bool.h>
 #include<Servo.h>    //call servo library
@@ -12,11 +12,6 @@ int M2 = 7;    //M1 Direction Control
 
 Servo myServo;      //declare servo motor
  
-void stop(void)                    //Stop
-  {
-    digitalWrite(E1,LOW);   
-    digitalWrite(E2,LOW);      
-  }   
 void back_off(char a,char b )          //Move linear actuator backwards
   {
     analogWrite (E1,a);      //Pulse width modulator Speed Control
@@ -34,14 +29,25 @@ std_msgs::Bool finished_msg;
 ros::Publisher pub_finished("GrabFinished", &finished_msg); // Report back when retrieval is done
 
 void grabObject(const std_msgs::Bool& msg) {
-  if (msg.data == true) {
-    /* Do retrieval stuff */
-    finished_msg.data = true;
-    pub_finished.publish( &finished_msg); // Report back that the retrieval is done
+ if (msg.data == true) {
+      myServo.attach(14);     //set myServo to pin 14
+      advance(255,255);
+      delay(9000);
+      myServo.write(30); 
+      delay(9000);
+      delay(9000);
+      delay(9000);
+      myServo.write(160);
+      delay(9000);
+      back_off(255,255);
+      //Do retrieval stuff
+      finished_msg.data = true;
+      pub_finished.publish( &finished_msg); // Report back that the retrieval is done
   }
   else {
     // Do nothing when not needed
     finished_msg.data = false;
+    pub_finished.publish( &finished_msg); // Report back that the retrieval is done
   }
 }
 
@@ -53,16 +59,7 @@ void setup()
   nh.initNode();
   nh.subscribe(subGrab); // Subscribe to "GrabObject"
   pinMode(14, OUTPUT);    //set pin 14 as output
-  myServo.attach(14);     //set myServo to pin 14
-  advance(255,255);
-  delay(9000);
-  myServo.write(30); 
-  delay(9000);
-  delay(9000);
-  delay(9000);
-  myServo.write(160);
-  delay(9000);
-  back_off(255,255);
+
  /* The rest of the setup */ 
 }
 
