@@ -46,7 +46,7 @@ return dst;
 }
 
 void findGrass(Mat &src, Mat &HSV){
-  int iLowH = 20;
+  int iLowH = 30;
   int iHighH = 50;
 
   int iLowS = 60;
@@ -94,10 +94,59 @@ void findGrass(Mat &src, Mat &HSV){
     }
 }
 
+void removenoise(Mat& image)
+  {
+  //Morphologial opening
+  erode(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
+  dilate(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
+  //Morphological closing
+  dilate(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
+  erode(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
+  }
+
+//get robot and camera angles
+//img -> the current camera image
+//objectRows -> rows from the left that the object is in
+//objectCols -> columns from the top that the object is
+void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
+{
+    int rows = img.rows; // height of camera image in pixels
+    int cols = img.cols; // width of camera image in pixels
+    //cout << "Rows: " << rows << "\n" << "Cols: " << cols << endl;
+    
+    //logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
+    double camera_diagonal = 69; // the angle of the cameras diagonal in degrees
+    double pixel_diagonal = sqrt(rows * rows + cols * cols); // (pythagorean) diagonal length of image in pixels
+    double degrees_per_pixel = camera_diagonal / pixel_diagonal; // ratio of real world degrees to pixels in the image
+    
+    int center_rows = rows / 2; // the center height is half of the total height
+    int center_cols = cols / 2; // the center width is half of the total width
+    //cout << "Center Rows: " << center_rows << "\n" << "Center Cols: " << center_cols << endl;
+    
+    int diff_rows = center_rows - object_rows; // difference between center and object rows
+    int diff_cols = center_cols - object_cols; // difference between center and object cols
+    //cout << "Diff Rows: " << diff_rows << "\n" << "Diff Cols: " << diff_cols << endl;
+    
+    double turn_robot_x_degrees = diff_cols * degrees_per_pixel; // positive -> turn left, negative -> turn right
+    double tilt_camera_x_degrees = diff_rows * degrees_per_pixel; // positive -> tilt up, negative -> tilt down
+    cout << "Turn robot " << turn_robot_x_degrees << " degrees.\n" << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
+}
+
+//returns distance from robot to sample
+//tilted_degrees -> tilt angle or camera
+void check_sample_distance(double tilted_degrees)
+{
+    double tilted_radians = tilted_degrees * 3.1415962 / 180.0; // c++ tan() function uses radians
+    double height = 1.2; // height of camera from the ground in meters
+    double distance = height * tan(tilted_radians);
+    cout << "Distance is " << distance << " meters" << endl;
+}
+
+
 
 int main()
   {
-  hsvParams hsv = {20,0,50,180,70,200};
+  hsvParams hsv = {0,0,200,180,90,255};
 
   //Set up blob detection parameters
   SimpleBlobDetector::Params params;
@@ -112,7 +161,7 @@ int main()
         params.maxThreshold = 250;
         params.thresholdStep = 1;
 
-        params.minArea = 100;
+        params.minArea = 50;
         params.minConvexity = 0.3;
         params.minInertiaRatio = 0.15;
 
@@ -120,15 +169,23 @@ int main()
         params.maxConvexity = 10;
 
 
-  SimpleBlobDetector blob_detector;
-  blob_detector.create(params);
   vector<KeyPoint> keypoints;
 
-  const string filename("./cut_long/50 ft.jpg");
+  const string filename("./webcam1.jpg");
   string text("Object not found");
+  //Initialize camera
+//  VideoCapture cap(2);
+//  if ( !cap.isOpened() )  // if not success, exit program
+//    {
+//    cout << "Cannot open the web cam" << endl;
+//    return -1;
+//    }
 
+while(true){
   Mat img, imgHSV, imgTHRESH, out;
   img = imread(filename, CV_LOAD_IMAGE_COLOR);
+//cap>>img;
+cout<<img.rows<<" "<<img.cols<<endl;
   if(img.empty()){
      cout << "can not open " << endl;
      return -1;
@@ -147,8 +204,10 @@ int main()
   namedWindow("Detection", WINDOW_AUTOSIZE);
 
   //Initialize blobdetector with predefine parameters
-  Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
-  blobDetect->detect( imgTHRESH, keypoints );
+  SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
+  blobDetect.detect( imgTHRESH, keypoints );
+  //Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
+  //blobDetect->detect( imgTHRESH, keypoints );
 
   //SimpleBlobDetector blobDetect;
   //blobDetect.create(params);
@@ -161,34 +220,35 @@ int main()
     circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 20, 8);
     }
 
-  if(keypoints.size() == 1)
+   if(keypoints.size() == 1){
     text = "Object Found";
-  if(keypoints.size() > 1)
+    cout<<endl<<endl<<"Object Found"<<endl;
+    //cout<<out.rows<<" "<<out.cols<<endl;
+    //cout<<keypoints[0].pt.x<<" "<<keypoints[0].pt.y<<endl;
+
+    tilt_turn_degrees(img, keypoints[0].pt.y, keypoints[0].pt.x);
+    check_sample_distance(45.2);
+  }
+  if(keypoints.size() > 1){
     text = "Error";
+    cout<<"No Object Found"<<endl;
+  }
 
   putText(out, text, Point(100,200), FONT_HERSHEY_PLAIN, 20, Scalar(0, 0, 255), 20);
 
   //equalizeHist(img, out);
 
 
-  for(;;)
-    {
+  //for(;;)
+    //{
     imshow("Input", img);
     imshow("Detection", out);
-    if(waitKey(30) >= 0 ) break;
-    }
-
+    waitKey(5000);
+    //if(waitKey(30) >= 0 ) break;
+    //}
+//sleep(5);
+}
   return 0;
   }
-//.....................................................
-//removenoise()
-void removenoise(Mat& image)
-  {
-  //Morphologial opening
-  erode(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
-  dilate(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
-  //Morphological closing
-  dilate(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
-  erode(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
-  }
-//.................................................................................
+
+
