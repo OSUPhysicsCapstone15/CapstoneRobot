@@ -1,5 +1,5 @@
 /* 
-Arduino code to control the motors using input from ROS
+ Arduino code to control the motors using input from ROS
  */
 
 #include <ros.h>
@@ -30,7 +30,8 @@ void leftMotor(const std_msgs::Float32& msg){
     md1.setM1Speed(msg.data);
     leftReturn_msg.data = msg.data;
     pub_leftReturn.publish( &leftReturn_msg);
-  } else {
+  } 
+  else {
     leftReturn_msg.data = 0;
     pub_leftReturn.publish( &leftReturn_msg);
   }
@@ -42,7 +43,8 @@ void rightMotor(const std_msgs::Float32& msg){
     md1.setM2Speed(msg.data);
     rightReturn_msg.data = msg.data;
     pub_rightReturn.publish( &rightReturn_msg);
-  } else {
+  } 
+  else {
     rightReturn_msg.data = 0;
     pub_rightReturn.publish( &rightReturn_msg);
   }
@@ -75,21 +77,23 @@ void loop()
 
     if (!paused) { // If we are currently moving
       if (command==107) { // If "k" is read, stop the motors & activate LED
-          md1.setM1Speed(0);
-          md1.setM2Speed(0);
-          digitalWrite(13,HIGH);
-          paused = true;
-          paused_msg.data = paused;
-          pub_paused.publish( &paused_msg);
-      }
-    } else if (command == 103) { // Pause until "g" is read
-        paused = false;
+        md1.setM1Speed(0);
+        md1.setM2Speed(0);
+        digitalWrite(13,HIGH);
+        paused = true;
         paused_msg.data = paused;
         pub_paused.publish( &paused_msg);
-        digitalWrite(13, LOW); // Now enabled
+      }
+    } 
+    else if (command == 103) { // Pause until "g" is read
+      paused = false;
+      paused_msg.data = paused;
+      pub_paused.publish( &paused_msg);
+      digitalWrite(13, LOW); // Now enabled
     }
   }
   nh.spinOnce(); // Check for updates with ROS
   delay(0.1);
 }
+
 

@@ -261,8 +261,8 @@ Mat blobtest=bigBlob;
 
 //cout<<center<<endl;
 
-   //imshow("Thresholded Image", imgThresholded); //show the thresholded image
-   //imshow("blob Image", blobtest);
+   imshow("Thresholded Image", imgThresholded); //show the thresholded image
+   imshow("blob Image", blobtest);
   imshow("Original", imgOriginal); //show the original image
 
  //       if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop

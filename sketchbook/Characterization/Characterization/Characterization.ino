@@ -56,8 +56,8 @@ void setup()
 }
 
 void loop () {
-  md1.setM1Speed(130);
-  md1.setM2Speed(130);
+  md1.setM1Speed(150);
+  md1.setM2Speed(150);
   delay(5000);
 }
 
