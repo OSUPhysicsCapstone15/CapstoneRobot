@@ -71,23 +71,24 @@ Point computeCentroid(const cv::Mat &mask) {
 Mat imgOriginalON, imgOriginalOFF;
 clock_t start;
 double duration=0;
+double timer=1;
 
 while(true){
 
-cout<<"Taking On in 5 s"<<endl;
+cout<<"Taking On in "<<timer<<" s"<<endl;
 start = std::clock();
 duration=0;
-while(duration<5){
+while(duration<timer){
     cap>>imgOriginalON;
     duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
 }
 
 cout<<"Taking On"<<endl;
 cap>>imgOriginalON;
-cout<<"Taking OFF in 5 s"<<endl;
+cout<<"Taking OFF in "<<timer<<" s"<<endl;
 
 start = std::clock();
-while(duration<5){
+while(duration<timer){
     cap>>imgOriginalOFF;
     duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
 }
@@ -136,8 +137,9 @@ cap>>imgOriginalOFF;
    if(keypoints.size() == 2){
     text = "Object Found";
     cout<<endl<<endl<<"Object Found"<<endl;
-    //tilt_turn_degrees(img, keypoints[0].pt.y, keypoints[0].pt.x);
-    //check_sample_distance(45.2);
+    int xCord=((keypoints[0].pt.x)+(keypoints[1].pt.y))/2;
+    int yCord=abs((keypoints[1].pt.y)-(keypoints[0].pt.y))/2
+    tilt_turn_degrees(img, yCord, xCord);
   }
   else{
     text = "Error";

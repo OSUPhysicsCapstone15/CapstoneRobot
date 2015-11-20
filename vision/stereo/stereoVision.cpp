@@ -11,25 +11,25 @@ using namespace cv;
 
 int main(int argc, char** argv)
 {
-    const char* img1_filename = "/Users/rvansoelen/Documents/robot/res/depth/left.png"; //01.jpg";
-    const char* img2_filename = "/Users/rvansoelen/Documents/robot/res/depth/right.png"; //01.jpg";
+    const char* imgl_filename = "../res/stereo/left.png"; //01.jpg";
+    const char* imgr_filename = "../res/stereo/right.png"; //01.jpg";
     Rect roi1, roi2;
     Mat Q;
-    Mat img1 = imread(img1_filename), img1Gray;
-    Mat img2 = imread(img2_filename), img2Gray;
+    Mat imgl = imread(imgl_filename), imglGray;
+    Mat imgr = imread(imgr_filename), imgrGray;
     Mat disp, disp8;
     
     int SADWindowSize = 0, numberOfDisparities = 0;
     
     Ptr<StereoBM> bm = StereoBM::create(64, 11);//16,9);
     
-    if (img1.empty())
+    if (imgl.empty())
     {
         printf("could not load the first image");
         return -1;
     }
     
-    if (img2.empty())
+    if (imgr.empty())
     {
         printf("could not load the second image");
         return -1;
@@ -39,36 +39,35 @@ int main(int argc, char** argv)
     
     //numberOfDisparities = numberOfDisparities > 0 ? numberOfDisparities : ((img_size.width/8) + 15) & -16;
     
-    //bm->setROI1(roi1);
-    //bm->setROI2(roi2);
-    //bm->setPreFilterCap(31);
-    //bm->setBlockSize(SADWindowSize > 0 ? SADWindowSize : 9);
-    //bm->setMinDisparity(0);
+    bm->setROI1(roi1);
+    bm->setROI2(roi2);
+    bm->setPreFilterCap(31);
+    bm->setBlockSize(SADWindowSize > 0 ? SADWindowSize : 9);
+    bm->setMinDisparity(0);
     //bm->setNumDisparities(numberOfDisparities);
-    //bm->setTextureThreshold(10);
-    //bm->setUniquenessRatio(15);
-    //bm->setSpeckleWindowSize(100);
-    //bm->setSpeckleRange(32);
-    //bm->setDisp12MaxDiff(1);
+    bm->setTextureThreshold(10);
+    bm->setUniquenessRatio(15);
+    bm->setSpeckleWindowSize(100);
+    bm->setSpeckleRange(32);
+    bm->setDisp12MaxDiff(1);
   
-    cvtColor(img1, img1Gray, CV_BGR2GRAY);
-    cvtColor(img2, img2Gray, CV_BGR2GRAY);
+    cvtColor(imgl, imglGray, CV_BGR2GRAY);
+    cvtColor(imgr, imgrGray, CV_BGR2GRAY);
     
-    bm->compute(img1Gray, img2Gray, disp);
+    bm->compute(imglGray, imgrGray, disp);
     
     disp.convertTo(disp8, CV_8U); //, 255/(numberOfDisparities*16.));
     
-    namedWindow("left", 1);
-    imshow("left", img1);
-    namedWindow("right", 1);
-    imshow("right", img2);
-    namedWindow("disparity", 0);
+    namedWindow("left", WINDOW_AUTOSIZE);
+    imshow("left", imgl);
+    namedWindow("right", WINDOW_AUTOSIZE);
+    imshow("right", imgr);
+    namedWindow("disparity", WINDOW_AUTOSIZE);
     imshow("disparity", disp);
-    namedWindow("disparity 8", 0);
+    namedWindow("disparity 8", WINDOW_AUTOSIZE);
     imshow("disparity 8", disp8);
-    fflush(stdout);
+    fflush(stdout);  //needed?
     waitKey();
-    printf("\n");
     
     return 0;
 }

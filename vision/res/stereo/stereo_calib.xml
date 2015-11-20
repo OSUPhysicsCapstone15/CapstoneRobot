@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<imagelist>
+"../res/stereo/left01.jpg"
+"../res/stereo/right01.jpg"
+"../res/stereo/left02.jpg"
+"../res/stereo/right02.jpg"
+"../res/stereo/left03.jpg"
+"../res/stereo/right03.jpg"
+"../res/stereo/left04.jpg"
+"../res/stereo/right04.jpg"
+</imagelist>
+</opencv_storage>

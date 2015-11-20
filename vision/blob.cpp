@@ -10,7 +10,7 @@
 using namespace std;
 using namespace cv;
 
-x
+
 struct hsvParams
   {
   int hL, sL, vL, hH, sH, vH;
@@ -147,16 +147,6 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
     cout << "Distance is " << distance << " meters" << endl;
 }
 
-//returns distance from robot to sample
-//tilted_degrees -> tilt angle or camera
-void check_sample_distance(double tilted_degrees)
-{
-    double tilted_radians = tilted_degrees * 3.1415962 / 180.0; // c++ tan() function uses radians
-    double height = 1.2; // height of camera from the ground in meters
-    double distance = height * tan(tilted_radians);
-    cout << "Distance is " << distance << " meters" << endl;
-}
-
 
 
 int main()
@@ -239,7 +229,6 @@ cap>>img;
     //cout<<keypoints[0].pt.x<<" "<<keypoints[0].pt.y<<endl;
 
     tilt_turn_degrees(img, keypoints[0].pt.y, keypoints[0].pt.x);
-    check_sample_distance(45.2);
   }
   if(keypoints.size() > 1){
     text = "Error";
