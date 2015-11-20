@@ -2,7 +2,32 @@
 
 #include <ros.h>
 #include <std_msgs/Bool.h>
+#include<Servo.h>    //call servo library
 
+//Standard PWM DC control
+int E1 = 5;     //M1 Speed Control
+int E2 = 6;     //M2 Speed Control
+int M1 = 4;    //M1 Direction Control
+int M2 = 7;    //M1 Direction Control
+
+Servo myServo;      //declare servo motor
+ 
+void stop(void)                    //Stop
+  {
+    digitalWrite(E1,LOW);   
+    digitalWrite(E2,LOW);      
+  }   
+void back_off(char a,char b )          //Move linear actuator backwards
+  {
+    analogWrite (E1,a);      //Pulse width modulator Speed Control
+    digitalWrite(M1,HIGH);   //Motor power on
+  }  
+void advance(char a,char b)          //Move linear actuator forward
+  {
+    analogWrite (E1,a);
+    digitalWrite(M1,LOW);   //Motor power off
+  }
+  
 // Set up ROS publishing
 ros::NodeHandle nh;
 std_msgs::Bool finished_msg;
@@ -27,7 +52,17 @@ void setup()
 {
   nh.initNode();
   nh.subscribe(subGrab); // Subscribe to "GrabObject"
- 
+  pinMode(14, OUTPUT);    //set pin 14 as output
+  myServo.attach(14);     //set myServo to pin 14
+  advance(255,255);
+  delay(9000);
+  myServo.write(30); 
+  delay(9000);
+  delay(9000);
+  delay(9000);
+  myServo.write(160);
+  delay(9000);
+  back_off(255,255);
  /* The rest of the setup */ 
 }
 

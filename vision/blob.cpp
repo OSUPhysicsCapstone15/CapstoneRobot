@@ -6,10 +6,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string>
+#include <ctime>
 using namespace std;
 using namespace cv;
 
-////////////////////////////////////////////
+x
 struct hsvParams
   {
   int hL, sL, vL, hH, sH, vH;
@@ -110,6 +111,10 @@ void removenoise(Mat& image)
 //objectCols -> columns from the top that the object is
 void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
 {
+    double camera_height = 1.2;     // height of camera from ground in meters
+    int camera_diagonal_angle = 69; // diagonal angle of view for camera in degrees
+                                    // logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
+    
     int rows = img.rows; // height of camera image in pixels
     int cols = img.cols; // width of camera image in pixels
     //cout << "Rows: " << rows << "\n" << "Cols: " << cols << endl;
@@ -130,6 +135,16 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
     double turn_robot_x_degrees = diff_cols * degrees_per_pixel; // positive -> turn left, negative -> turn right
     double tilt_camera_x_degrees = diff_rows * degrees_per_pixel; // positive -> tilt up, negative -> tilt down
     cout << "Turn robot " << turn_robot_x_degrees << " degrees.\n" << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
+    
+    double tilted_degrees = 90 - tilt_camera_x_degrees; // assuming camera is parallel to ground (90 degrees)
+
+    double tilted_radians = tilted_degrees * 3.1415962 / 180.0; // c++ tan() function uses radians
+
+    double height = camera_height; // height of camera from the ground in meters
+
+    double distance = height * tan(tilted_radians); // triangle formula for finding distance
+
+    cout << "Distance is " << distance << " meters" << endl;
 }
 
 //returns distance from robot to sample
@@ -171,21 +186,24 @@ int main()
 
   vector<KeyPoint> keypoints;
 
+clock_t start;
+double duration=0;
+
   const string filename("./webcam1.jpg");
   string text("Object not found");
   //Initialize camera
-//  VideoCapture cap(2);
-//  if ( !cap.isOpened() )  // if not success, exit program
-//    {
-//    cout << "Cannot open the web cam" << endl;
-//    return -1;
-//    }
+  VideoCapture cap(1);
+  if ( !cap.isOpened() )  // if not success, exit program
+    {
+    cout << "Cannot open the web cam" << endl;
+    return -1;
+    }
 
 while(true){
   Mat img, imgHSV, imgTHRESH, out;
-  img = imread(filename, CV_LOAD_IMAGE_COLOR);
-//cap>>img;
-cout<<img.rows<<" "<<img.cols<<endl;
+//  img = imread(filename, CV_LOAD_IMAGE_COLOR);
+cap>>img;
+
   if(img.empty()){
      cout << "can not open " << endl;
      return -1;
@@ -200,19 +218,13 @@ cout<<img.rows<<" "<<img.cols<<endl;
          Scalar(hsv.hH, hsv.sH, hsv.vH), imgTHRESH);
   removenoise(imgTHRESH);
 
-  namedWindow("Input", WINDOW_AUTOSIZE);
-  namedWindow("Detection", WINDOW_AUTOSIZE);
+ // namedWindow("Input", WINDOW_AUTOSIZE);
+ // namedWindow("Detection", WINDOW_AUTOSIZE);
 
   //Initialize blobdetector with predefine parameters
   SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
   blobDetect.detect( imgTHRESH, keypoints );
-  //Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
-  //blobDetect->detect( imgTHRESH, keypoints );
 
-  //SimpleBlobDetector blobDetect;
-  //blobDetect.create(params);
-  //Detect blobs
-  //blobDetect.detect(imgTHRESH, keypoints);
   drawKeypoints(imgTHRESH, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
   //Circle blobs
   for(int i = 0; i < keypoints.size(); i++)
@@ -236,17 +248,19 @@ cout<<img.rows<<" "<<img.cols<<endl;
 
   putText(out, text, Point(100,200), FONT_HERSHEY_PLAIN, 20, Scalar(0, 0, 255), 20);
 
-  //equalizeHist(img, out);
-
-
   //for(;;)
     //{
-    imshow("Input", img);
-    imshow("Detection", out);
-    waitKey(5000);
+    //imshow("Input", img);
+    //imshow("Detection", out);
     //if(waitKey(30) >= 0 ) break;
     //}
-//sleep(5);
+
+   duration=0;
+   start = std::clock();
+   while(duration<4){
+       cap>>img;
+       duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+   }
 }
   return 0;
   }
