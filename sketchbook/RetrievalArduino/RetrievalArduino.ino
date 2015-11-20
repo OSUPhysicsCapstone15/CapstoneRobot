@@ -9,6 +9,8 @@ int E1 = 5;     //M1 Speed Control
 int E2 = 6;     //M2 Speed Control
 int M1 = 4;    //M1 Direction Control
 int M2 = 7;    //M1 Direction Control
+long startTime = millis();
+boolean grabbing = false;
 
 Servo myServo;      //declare servo motor
  
@@ -30,21 +32,10 @@ ros::Publisher pub_finished("GrabFinished", &finished_msg); // Report back when 
 
 void grabObject(const std_msgs::Bool& msg) {
  if (msg.data == true) {
-      myServo.attach(14);     //set myServo to pin 14
-      advance(255,255);
-      delay(9000);
-      myServo.write(30); 
-      delay(9000);
-      delay(9000);
-      delay(9000);
-      myServo.write(160);
-      delay(9000);
-      back_off(255,255);
-      //Do retrieval stuff
-      finished_msg.data = true;
-      pub_finished.publish( &finished_msg); // Report back that the retrieval is done
-  }
-  else {
+   grabbing = true;
+   startTime = millis();
+ } else {
+    grabbing = false;
     // Do nothing when not needed
     finished_msg.data = false;
     pub_finished.publish( &finished_msg); // Report back that the retrieval is done
@@ -65,6 +56,22 @@ void setup()
 
 void loop()
 {  
+  if(grabbing) {
+      myServo.attach(14);     //set myServo to pin 14
+      advance(255,255);
+      if(millis() - startTime > 9000) {
+        myServo.write(30); 
+      }
+      if( millis() - startTime > 9000 * 4) {
+        myServo.write(160);
+      }
+      if( millis() - startTime > 9000 * 5) {
+        back_off(255,255);
+        finished_msg.data = true;
+        pub_finished.publish( &finished_msg); // Report back that the retrieval is done
+        grabbing = false;
+      }
+  }
   nh.spinOnce(); // Check with ROS for updates
 }
 
