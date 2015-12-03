@@ -9,8 +9,9 @@ int E1 = 5;     //M1 Speed Control
 int E2 = 6;     //M2 Speed Control
 int M1 = 4;    //M1 Direction Control
 int M2 = 7;    //M1 Direction Control
-long startTime = millis();
+unsigned long startTime = millis();
 boolean grabbing = false;
+boolean once = true;
 
 Servo myServo;      //declare servo motor
  
@@ -34,6 +35,7 @@ void grabObject(const std_msgs::Bool& msg) {
  if (msg.data == true) {
    grabbing = true;
    startTime = millis();
+   once = true;
  } else {
     grabbing = false;
     // Do nothing when not needed
@@ -56,21 +58,22 @@ void setup()
 
 void loop()
 {  
+  unsigned long currentMillis = millis();
   if(grabbing) {
+    if(once) {
       myServo.attach(14);     //set myServo to pin 14
       advance(255,255);
-      if(millis() - startTime > 9000) {
-        myServo.write(30); 
-      }
-      if( millis() - startTime > 9000 * 4) {
-        myServo.write(160);
-      }
-      if( millis() - startTime > 9000 * 5) {
-        back_off(255,255);
-        finished_msg.data = true;
-        pub_finished.publish( &finished_msg); // Report back that the retrieval is done
-        grabbing = false;
-      }
+      once = false;
+    } else if( currentMillis > (9000 * 5)) {
+      back_off(255,255);
+      finished_msg.data = true;
+      pub_finished.publish( &finished_msg); // Report back that the retrieval is done
+      grabbing = false;
+    } else if( currentMillis > (9000 * 4)) {
+      myServo.write(160);      
+    } else if(currentMillis > 9000) {
+      myServo.write(30); 
+    }
   }
   nh.spinOnce(); // Check with ROS for updates
 }
