@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-//#include "opencv2/opencv.hpp"
+#include "opencv2/opencv.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <vector>
@@ -66,6 +66,10 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
     cout << "Distance is " << distance << " meters" << endl;
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 307c2810f4c3dd409af2eb1552ee8f18a002d689
 
 
  int main( int argc, char** argv )
@@ -103,7 +107,7 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
 
   string text("Object not found");
 
-    VideoCapture cap(1); //capture the video from web cam
+    VideoCapture cap(0); //capture the video from web cam
     if ( !cap.isOpened() )  // if not success, exit program
     {
          cout << "Cannot open the web cam" << endl;
@@ -130,6 +134,7 @@ cap>>imgOriginalON;
 cout<<"Taking OFF in "<<timer<<" s"<<endl;
 
 start = std::clock();
+duration=0;
 while(duration<timer){
     cap>>imgOriginalOFF;
     duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
@@ -166,8 +171,9 @@ cap>>imgOriginalOFF;
   erode(imgThresholdedOFF, imgThresholdedOFF, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
 
   Mat imgTHRESH=imgThresholdedON-imgThresholdedOFF, out;
-  SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
-  blobDetect.detect( imgTHRESH, keypoints );
+  //SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
+  Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
+  blobDetect->detect( imgTHRESH, keypoints );
 
   drawKeypoints(imgTHRESH, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
   //Circle blobs
@@ -179,13 +185,14 @@ cap>>imgOriginalOFF;
    if(keypoints.size() == 2){
     text = "Object Found";
     cout<<endl<<endl<<"Object Found"<<endl;
+    Mat diff=imgThresholdedON-imgThresholdedOFF;
     int xCord=((keypoints[0].pt.x)+(keypoints[1].pt.y))/2;
-    int yCord=abs((keypoints[1].pt.y)-(keypoints[0].pt.y))/2
-    tilt_turn_degrees(img, yCord, xCord);
+    int yCord=abs((keypoints[1].pt.y)-(keypoints[0].pt.y))/2;
+    tilt_turn_degrees(diff, yCord, xCord);
   }
   else{
     text = "Error";
-    cout<<"No Object Found"<<endl;
+    cout<<endl<<endl<<"No Object Found"<<endl;
   }
 
   putText(out, text, Point(100,200), FONT_HERSHEY_PLAIN, 20, Scalar(0, 0, 255), 20);
@@ -204,7 +211,7 @@ cap>>imgOriginalOFF;
             //break;
  //      }
  //   }
-	waitKey(-1);
+	//waitKey(-1);
 }
    return 0;
 
