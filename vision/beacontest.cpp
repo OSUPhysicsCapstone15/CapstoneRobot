@@ -66,11 +66,6 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
     cout << "Distance is " << distance << " meters" << endl;
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 307c2810f4c3dd409af2eb1552ee8f18a002d689
-
 
  int main( int argc, char** argv )
  {

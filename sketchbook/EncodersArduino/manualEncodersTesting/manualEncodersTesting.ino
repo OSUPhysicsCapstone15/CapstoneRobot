@@ -2,13 +2,14 @@
 
 #include <ros.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/Int64.h>
 #include <std_msgs/Bool.h>
 #include <SoftwareSerial.h> 
 
 // Set up ROS publishing
 ros::NodeHandle  nh;  
-std_msgs::Int32 leftencoder_msg;
-std_msgs::Int32 rightencoder_msg;
+std_msgs::Int64 leftencoder_msg;
+std_msgs::Int64 rightencoder_msg;
 std_msgs::Int32 confirmheartbeat_msg;
 ros::Publisher pub_LeftEncoder("LeftEncoder", &leftencoder_msg);
 ros::Publisher pub_RightEncoder("RightEncoder", &rightencoder_msg);
