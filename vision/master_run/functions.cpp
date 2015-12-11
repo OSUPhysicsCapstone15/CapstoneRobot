@@ -97,20 +97,15 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
 
     int rows = img.rows; // height of camera image in pixels
     int cols = img.cols; // width of camera image in pixels
-    //cout << "Rows: " << rows << "\n" << "Cols: " << cols << endl;
-
-    //logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
-    double camera_diagonal = 69; // the angle of the cameras diagonal in degrees
+   
     double pixel_diagonal = sqrt(rows * rows + cols * cols); // (pythagorean) diagonal length of image in pixels
-    double degrees_per_pixel = camera_diagonal / pixel_diagonal; // ratio of real world degrees to pixels in the image
+    double degrees_per_pixel = camera_diagonal_angle / pixel_diagonal; // ratio of real world degrees to pixels in the image
 
     int center_rows = rows / 2; // the center height is half of the total height
     int center_cols = cols / 2; // the center width is half of the total width
-    //cout << "Center Rows: " << center_rows << "\n" << "Center Cols: " << center_cols << endl;
 
     int diff_rows = center_rows - object_rows; // difference between center and object rows
     int diff_cols = center_cols - object_cols; // difference between center and object cols
-    //cout << "Diff Rows: " << diff_rows << "\n" << "Diff Cols: " << diff_cols << endl;
 
     double turn_robot_x_degrees = diff_cols * degrees_per_pixel; // positive -> turn left, negative -> turn right
     double tilt_camera_x_degrees = diff_rows * degrees_per_pixel; // positive -> tilt up, negative -> tilt down

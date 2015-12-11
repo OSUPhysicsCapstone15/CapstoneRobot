@@ -9,7 +9,8 @@ int beacon_main(int cam)
   namedWindow("Original OFF", WINDOW_AUTOSIZE);
   namedWindow("Diff", WINDOW_AUTOSIZE);
 
-  hsvParams hsv = {76,0,224,97,37,255};
+  //hsvParams hsv = {76,0,224,97,37,255};
+  hsvParams hsv = {76,0,100,97,37,255};
 
   //Set up blob detection parameters
   SimpleBlobDetector::Params params;
@@ -34,8 +35,8 @@ int beacon_main(int cam)
 
   vector<KeyPoint> keypoints;
 
-  const string filenameON("./beaconON.jpg");
-  const string filenameOFF("./beaconOFF.jpg");
+  const string filenameON("./beaconON1.jpg");
+  const string filenameOFF("./beaconOFF1.jpg");
   string text("Object not found");
   VideoCapture cap;
   if(cam){
@@ -91,12 +92,12 @@ Mat imgHSVON,imgHSVOFF;
      return -1;
  }
 
-Mat diff;
-absdiff(imgOriginalON,imgOriginalOFF,diff);
+   Mat diff;
+   absdiff(imgOriginalON,imgOriginalOFF,diff);
    cvtColor(diff, diff, COLOR_BGR2GRAY); //Convert the captured 
   
   threshold(diff, diff, 200, 255, cv::THRESH_BINARY);
-  dilate(diff, diff, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) ); 
+  dilate(diff, diff, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
 
   //Initialize blobdetector with predefine parameters
   //lab computer version
@@ -107,6 +108,25 @@ absdiff(imgOriginalON,imgOriginalOFF,diff);
 //  blobDetect->detect( imgTHRESH, keypoints );
 Mat out;
   drawKeypoints(diff, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
+/*
+  cvtColor(out, out, COLOR_BGR2HSV);
+  inRange(out, Scalar(hsv.hL, hsv.sL, hsv.vL),
+         Scalar(hsv.hH, hsv.sH, hsv.vH), out);
+  blobDetect.detect( out, keypoints );
+  drawKeypoints(out, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
+*/
+  for(int i=0;i<diff.rows;i++){
+     for(int j=0;j<diff.cols;j++){
+            if(out.at<Vec3b>(i,j)[0]==0 && out.at<Vec3b>(i,j)[1]==0 && out.at<Vec3b>(i,j)[2]==0){
+                imgOriginalON.at<Vec3b>(i,j)=(0,0,0);
+            }
+     }
+  }
+  inRange(imgOriginalON, Scalar(hsv.hL, hsv.sL, hsv.vL),
+         Scalar(hsv.hH, hsv.sH, hsv.vH), out);
+  blobDetect.detect( out, keypoints );
+  drawKeypoints(out, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
+
   //Circle blobs
   for(int i = 0; i < keypoints.size(); i++)
     {
@@ -130,13 +150,7 @@ Mat out;
   imshow("Original ON", imgOriginalON); //show the original image
   imshow("Original OFF", imgOriginalOFF); //show the original image
   imshow("Diff", out);
- //       if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
- //      {
- //           cout << "esc key is pressed by user" << endl;
-            //break;
- //      }
- //   }
-	waitKey(-1);
+  waitKey(-1);
 }
 return 0;
 }

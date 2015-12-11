@@ -37,7 +37,7 @@ double duration=0;
   //Initialize camera
   VideoCapture cap;
   if(cam){
-	  cap(1);
+	  VideoCapture cap(1);
 	  if ( !cap.isOpened() )  // if not success, exit program
 	   {
 	    cout << "Cannot open the web cam" << endl;
@@ -67,9 +67,6 @@ while(true){
          Scalar(hsv.hH, hsv.sH, hsv.vH), imgTHRESH);
   removenoise(imgTHRESH);
 
- // namedWindow("Input", WINDOW_AUTOSIZE);
- // namedWindow("Detection", WINDOW_AUTOSIZE);
-
   //Initialize blobdetector with predefine parameters
   //lab computer version
   SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
@@ -97,13 +94,6 @@ while(true){
   }
 
   putText(out, text, Point(100,200), FONT_HERSHEY_PLAIN, 20, Scalar(0, 0, 255), 20);
-
-  //for(;;)
-    //{
-    //imshow("Input", img);
-    //imshow("Detection", out);
-    //if(waitKey(30) >= 0 ) break;
-    //}
 
    duration=0;
    start = std::clock();

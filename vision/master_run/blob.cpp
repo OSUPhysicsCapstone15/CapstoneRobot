@@ -67,9 +67,6 @@ while(true){
          Scalar(hsv.hH, hsv.sH, hsv.vH), imgTHRESH);
   removenoise(imgTHRESH);
 
- // namedWindow("Input", WINDOW_AUTOSIZE);
- // namedWindow("Detection", WINDOW_AUTOSIZE);
-
   //Initialize blobdetector with predefine parameters
   //lab computer version
   SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
@@ -83,12 +80,9 @@ while(true){
   for(int i = 0; i < keypoints.size(); i++)
     circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 20, 8);
 
-   if(keypoints.size() == 1){
+  if(keypoints.size() == 1){
     text = "Object Found";
     cout<<endl<<endl<<"Object Found"<<endl;
-    //cout<<out.rows<<" "<<out.cols<<endl;
-    //cout<<keypoints[0].pt.x<<" "<<keypoints[0].pt.y<<endl;
-
     tilt_turn_degrees(img, keypoints[0].pt.y, keypoints[0].pt.x);
   }
   if(keypoints.size() > 1){
@@ -97,13 +91,6 @@ while(true){
   }
 
   putText(out, text, Point(100,200), FONT_HERSHEY_PLAIN, 20, Scalar(0, 0, 255), 20);
-
-  //for(;;)
-    //{
-    //imshow("Input", img);
-    //imshow("Detection", out);
-    //if(waitKey(30) >= 0 ) break;
-    //}
 
    duration=0;
    start = std::clock();
