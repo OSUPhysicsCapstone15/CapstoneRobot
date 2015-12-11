@@ -19,10 +19,11 @@ ros::NodeHandle nh;
 std_msgs::Float32 leftReturn_msg;
 std_msgs::Float32 rightReturn_msg;
 std_msgs::Bool paused_msg;
+std_msgs::Bool grab_msg;
 ros::Publisher pub_leftReturn("LeftReturn", &leftReturn_msg); // for nonmotor testing
 ros::Publisher pub_rightReturn("RightReturn", &rightReturn_msg); // for nonmotor testing
 ros::Publisher pub_paused("Paused", &paused_msg); // report a paused command
-
+ros::Publisher pub_grab("GrabFinished", &grab_msg); // report a paused command
 
 void leftMotor(const std_msgs::Float32& msg){
   // Set the left motor speed given by ROS in the topic "Motors"
@@ -50,13 +51,25 @@ void rightMotor(const std_msgs::Float32& msg){
   }
 }
 
+void grabPin(const std_msgs::Bool& msg){
+   if(msg.data) {
+      digitalWrite(12, HIGH);
+   } else {
+     digitalWrite(12, LOW);
+   }
+}
+
 ros::Subscriber<std_msgs::Float32> subLeft("LeftMotors", &leftMotor);
 ros::Subscriber<std_msgs::Float32> subRight("RightMotors", &rightMotor);
+ros::Subscriber<std_msgs::Bool> subRight("GrabObject", &grabPin);
 
 void setup()
 { 
   pinMode(13, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(11, INPUT);
   digitalWrite(13, HIGH); // LED is on unless we are moving
+  digitalWrite(12, LOW);
   bluetooth.begin(115200);  // Android runs bluetooth at 115200 baud
   // Initialize the motors and the ROS node
   md1.init();
@@ -66,6 +79,7 @@ void setup()
   nh.advertise(pub_leftReturn); // publish left motor value for testing
   nh.advertise(pub_rightReturn); // publish right motor value for testing
   nh.advertise(pub_paused);
+  nh.advertise(pub_grab);
   paused = false;
 }
 
@@ -91,6 +105,14 @@ void loop()
       pub_paused.publish( &paused_msg);
       digitalWrite(13, LOW); // Now enabled
     }
+  }
+  
+  if(digitalRead(11)) {
+    grab_msg.data = 1;
+    pub_grab( &grab_msg); 
+  } else {
+    grab_msg.data = 0;
+    pub_grab( &grab_msg);  
   }
   nh.spinOnce(); // Check for updates with ROS
   delay(0.1);
