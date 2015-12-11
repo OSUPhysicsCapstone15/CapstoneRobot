@@ -4,13 +4,13 @@
 
 int beacon_main(int cam)
  {
-
+int thresh=200;
   namedWindow("Original ON", WINDOW_AUTOSIZE);
   namedWindow("Original OFF", WINDOW_AUTOSIZE);
   namedWindow("Diff", WINDOW_AUTOSIZE);
 
   //hsvParams hsv = {76,0,224,97,37,255};
-  hsvParams hsv = {76,0,0,97,37,255};
+  hsvParams hsv = {20,0,0,97,37,255};
 
   //Set up blob detection parameters
   SimpleBlobDetector::Params params;
@@ -29,7 +29,7 @@ int beacon_main(int cam)
         params.minConvexity = 0.3;
         params.minInertiaRatio = 0.15;
 
-        params.maxArea = 8000;
+        params.maxArea = 200;
         params.maxConvexity = 10;
 
 
@@ -96,7 +96,7 @@ Mat imgHSVON,imgHSVOFF;
    absdiff(imgOriginalON,imgOriginalOFF,diff);
    cvtColor(diff, diff, COLOR_BGR2GRAY); //Convert the captured 
   
-  threshold(diff, diff, 200, 255, cv::THRESH_BINARY);
+  threshold(diff, diff, thresh, 255, cv::THRESH_BINARY);
   dilate(diff, diff, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
 
   //Initialize blobdetector with predefine parameters
@@ -114,7 +114,7 @@ Mat out;
          Scalar(hsv.hH, hsv.sH, hsv.vH), out);
   blobDetect.detect( out, keypoints );
   drawKeypoints(out, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
-*/
+
   for(int i=0;i<diff.rows;i++){
      for(int j=0;j<diff.cols;j++){
             if(out.at<Vec3b>(i,j)[0]==0 && out.at<Vec3b>(i,j)[1]==0 && out.at<Vec3b>(i,j)[2]==0){
@@ -126,11 +126,12 @@ Mat out;
          Scalar(hsv.hH, hsv.sH, hsv.vH), out);
   blobDetect.detect( out, keypoints );
   drawKeypoints(out, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
-
+*/
   //Circle blobs
   for(int i = 0; i < keypoints.size(); i++)
     {
-    circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 1, 8);
+	if(keypoints[i].size>0)
+    	   circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 1, 8);
     }
 
    if(keypoints.size() == 2){
@@ -143,6 +144,8 @@ Mat out;
   else{
     text = "Error";
     cout<<endl<<endl<<"No Object Found"<<endl;
+	if(keypoints.size() > 2)
+	   thresh+=5;
   }
 
   putText(out, text, Point(100,200), FONT_HERSHEY_PLAIN, 20, Scalar(0, 0, 255), 20);
@@ -150,7 +153,9 @@ Mat out;
   imshow("Original ON", imgOriginalON); //show the original image
   imshow("Original OFF", imgOriginalOFF); //show the original image
   imshow("Diff", out);
-  waitKey(-1);
+  if(!cam)
+    waitKey(-1);
+    
 }
 return 0;
 }
