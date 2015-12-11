@@ -28,8 +28,7 @@ Point computeCentroid(const cv::Mat &mask) {
 //img -> the current camera image
 //objectRows -> rows from the left that the object is in
 //objectCols -> columns from the top that the object is
-void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
-{
+void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
     double camera_height = 1.2;     // height of camera from ground in meters
     int camera_diagonal_angle = 69; // diagonal angle of view for camera in degrees
                                     // logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
@@ -66,13 +65,8 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
     cout << "Distance is " << distance << " meters" << endl;
 }
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 307c2810f4c3dd409af2eb1552ee8f18a002d689
-
-
- int main( int argc, char** argv )
+ int main( )
  {
   namedWindow("Thresholded Image ON", WINDOW_AUTOSIZE);
   namedWindow("Thresholded Image OFF", WINDOW_AUTOSIZE);

@@ -95,8 +95,7 @@ void findGrass(Mat &src, Mat &HSV){
     }
 }
 
-void removenoise(Mat& image)
-  {
+void removenoise(Mat& image){
   //Morphologial opening
   erode(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
   dilate(image,image,getStructuringElement(MORPH_ELLIPSE,Size(5,5)));
@@ -109,8 +108,7 @@ void removenoise(Mat& image)
 //img -> the current camera image
 //objectRows -> rows from the left that the object is in
 //objectCols -> columns from the top that the object is
-void tilt_turn_degrees(Mat img, int object_rows, int object_cols)
-{
+void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
     double camera_height = 1.2;     // height of camera from ground in meters
     int camera_diagonal_angle = 69; // diagonal angle of view for camera in degrees
                                     // logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
