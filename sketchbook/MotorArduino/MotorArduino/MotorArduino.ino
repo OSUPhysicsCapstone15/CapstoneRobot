@@ -13,6 +13,7 @@ DualVNH5019MotorShield md1;
 const int bluetoothTx = 3;  // TX-O pin of bluetooth mate, Arduino D2
 const int bluetoothRx = 5;  // RX-I pin of bluetooth mate, Arduino D3
 boolean paused = false; // Whether or not the motors have received a paused command
+boolean armDone = false;
 SoftwareSerial bluetooth(bluetoothTx, bluetoothRx);
 
 ros::NodeHandle nh;
@@ -53,29 +54,30 @@ void rightMotor(const std_msgs::Float32& msg){
 
 void grabPin(const std_msgs::Bool& msg){
    if(msg.data) {
-      digitalWrite(12, HIGH);
+      digitalWrite(5, HIGH);
    } else {
-     digitalWrite(12, LOW);
+     digitalWrite(5, LOW);
    }
 }
 
 ros::Subscriber<std_msgs::Float32> subLeft("LeftMotors", &leftMotor);
 ros::Subscriber<std_msgs::Float32> subRight("RightMotors", &rightMotor);
-ros::Subscriber<std_msgs::Bool> subRight("GrabObject", &grabPin);
+ros::Subscriber<std_msgs::Bool> subGrab("GrabObject", &grabPin);
 
 void setup()
 { 
   pinMode(13, OUTPUT);
-  pinMode(12, OUTPUT);
-  pinMode(11, INPUT);
-  digitalWrite(13, HIGH); // LED is on unless we are moving
-  digitalWrite(12, LOW);
+  pinMode(5, OUTPUT);
+  pinMode(3, INPUT);
+  digitalWrite(13, LOW); // LED is on unless we are moving
+  digitalWrite(5, LOW);
   bluetooth.begin(115200);  // Android runs bluetooth at 115200 baud
   // Initialize the motors and the ROS node
   md1.init();
   nh.initNode();
   nh.subscribe(subLeft); // Subscribe to "LeftMotors"
   nh.subscribe(subRight); // Subscribe to "RightMotors"
+  nh.subscribe(subGrab);
   nh.advertise(pub_leftReturn); // publish left motor value for testing
   nh.advertise(pub_rightReturn); // publish right motor value for testing
   nh.advertise(pub_paused);
@@ -107,12 +109,12 @@ void loop()
     }
   }
   
-  if(digitalRead(11)) {
+  if(digitalRead(3) && !armDone) {
+    armDone = true; 
     grab_msg.data = 1;
-    pub_grab( &grab_msg); 
-  } else {
-    grab_msg.data = 0;
-    pub_grab( &grab_msg);  
+    pub_grab.publish( &grab_msg);
+  } else if(!digitalRead(3)){
+    armDone = false;  
   }
   nh.spinOnce(); // Check for updates with ROS
   delay(0.1);
