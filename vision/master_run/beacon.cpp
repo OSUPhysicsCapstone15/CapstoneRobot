@@ -142,9 +142,8 @@ Mat out;
 	while(keypoints.size() > 2)
 	   thresh+=5;
   }
-cout<<thresh<<endl;
-  imshow("Original ON", imgOriginalON); //show the original image
-  imshow("Original OFF", imgOriginalOFF); //show the original image
+  //imshow("Original ON", imgOriginalON); //show the original image
+  //imshow("Original OFF", imgOriginalOFF); //show the original image
   imshow("Diff", out);
   waitKey(-1);
     
