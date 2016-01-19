@@ -62,18 +62,17 @@ while(true){
   cvtColor(img, imgHSV, COLOR_BGR2HSV);
   findGrass(img,imgHSV);
   cvtColor(img, imgHSV, COLOR_BGR2HSV);
-
   inRange(imgHSV, Scalar(hsv.hL, hsv.sL, hsv.vL),
          Scalar(hsv.hH, hsv.sH, hsv.vH), imgTHRESH);
   removenoise(imgTHRESH);
 
   //Initialize blobdetector with predefine parameters
   //lab computer version
-  SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
-  blobDetect.detect( imgTHRESH, keypoints );
+  //SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
+  //blobDetect.detect( imgTHRESH, keypoints );
   //opencv 3.0 version
-//  Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
-//  blobDetect->detect( imgTHRESH, keypoints );
+  Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
+  blobDetect->detect( imgTHRESH, keypoints );
 
   drawKeypoints(imgTHRESH, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
   //Circle blobs
@@ -89,8 +88,6 @@ while(true){
     text = "Error";
     cout<<"No Object Found"<<endl;
   }
-
-  putText(out, text, Point(100,200), FONT_HERSHEY_PLAIN, 20, Scalar(0, 0, 255), 20);
 
    duration=0;
    start = std::clock();

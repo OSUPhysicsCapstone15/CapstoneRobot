@@ -3,7 +3,7 @@
 
 int main()
 {
-	int cam=0;
+	int cam=1;
 	//blob_main(cam);
 	beacon_main(cam);
 	return 0;
