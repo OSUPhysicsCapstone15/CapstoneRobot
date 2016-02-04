@@ -3,8 +3,12 @@
 
 int main()
 {
-	int cam=0;
-	//blob_main(cam);
+	int cam=1;
+if(cam)
+	beaconpics_main();
+else{
 	beacon_main(cam);
+}
+	//blob_main(cam);
 	return 0;
 }

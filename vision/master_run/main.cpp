@@ -1,10 +1,15 @@
 #include "beacon.h"
 #include "blob.h"
+#include "beaconpics.h"
 
 int main()
 {
 	int cam=1;
-	//blob_main(cam);
+if(cam)
+	beaconpics_main();
+else{
 	beacon_main(cam);
+}
+	//blob_main(cam);
 	return 0;
 }

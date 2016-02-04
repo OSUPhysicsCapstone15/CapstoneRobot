@@ -91,15 +91,15 @@ void removenoise(Mat& image){
 //objectRows -> rows from the left that the object is in
 //objectCols -> columns from the top that the object is
 void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
-    //6.096 is expected 
-    double camera_height = .3429;//.61;     // height of camera from ground in meters
-    double beacon_height = .7874;//.8;
+
+    double camera_height = 23.5;     // height of camera from ground in inches
+    double beacon_height = 30.5;
     int camera_diagonal_angle = 69; // diagonal angle of view for camera in degrees
                                     // logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
 
     int rows = img.rows; // height of camera image in pixels
     int cols = img.cols; // width of camera image in pixels
-   
+
     double pixel_diagonal = sqrt(rows * rows + cols * cols); // (pythagorean) diagonal length of image in pixels
     double degrees_per_pixel = camera_diagonal_angle / pixel_diagonal; // ratio of real world degrees to pixels in the image
 
@@ -110,17 +110,17 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
     int diff_cols = center_cols - object_cols; // difference between center and object cols
 
     double turn_robot_x_degrees = diff_cols * degrees_per_pixel; // positive -> turn left, negative -> turn right
-    double tilt_camera_x_degrees = diff_rows * degrees_per_pixel; // positive -> tilt up, negative -> tilt down
+    double tilt_camera_x_degrees = abs(diff_rows) * degrees_per_pixel; // positive -> tilt up, negative -> tilt down
     cout << "Turn robot " << turn_robot_x_degrees << " degrees.\n" << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
 
     double tilted_degrees = 90 - tilt_camera_x_degrees; // assuming camera is parallel to ground (90 degrees)
 
     double tilted_radians = tilted_degrees * 3.1415962 / 180.0; // c++ tan() function uses radians
 
-    double height = camera_height; // height of camera from the ground in meters
+    double height = beacon_height - camera_height; // height of camera from the beacon
 
     double distance = height * tan(tilted_radians); // triangle formula for finding distance
 
-    cout << "Distance is " << distance << " meters" << endl;
+    cout << "Distance is " << distance << " inches" << endl;
 }
 

@@ -2,11 +2,12 @@
 #include "functions.h"
 
 
-int beacon_main(int cam)
+int beaconpics_main()
  {
-int thresh=220;
-  namedWindow("Original ON", WINDOW_AUTOSIZE);
-  namedWindow("Original OFF", WINDOW_AUTOSIZE);
+int thresh=150;
+  namedWindow("Original 1", WINDOW_AUTOSIZE);
+  namedWindow("Original 2", WINDOW_AUTOSIZE);
+  namedWindow("Original 3", WINDOW_AUTOSIZE);
   namedWindow("Diff", WINDOW_AUTOSIZE);
 
   //hsvParams hsv = {76,0,224,97,37,255};
@@ -35,9 +36,6 @@ int thresh=220;
 
   vector<KeyPoint> keypoints;
 
-  const string filenameON("./beaconON.jpg");
-  const string filenameOFF("./beaconOFF.jpg");
-  string text("Object not found");
     VideoCapture cap(0); //capture the video from web cam
     if ( !cap.isOpened() )  // if not success, exit program
     {
@@ -45,65 +43,84 @@ int thresh=220;
          return -1;
     }
   
-Mat imgOriginalON, imgOriginalOFF;
+Mat imgOriginal1, imgOriginal2, imgOriginal3;
 clock_t start;
 double duration=0;
-double timer=1;
+double timer=.75;
 
 while(true){
 
-imgOriginalON = imread(filenameON, CV_LOAD_IMAGE_COLOR);
-imgOriginalOFF = imread(filenameOFF, CV_LOAD_IMAGE_COLOR);
-
-cout<<"Taking On in "<<timer<<" s"<<endl;
+cout<<"Taking 1 in "<<timer<<" s"<<endl;
 start = std::clock();
 duration=0;
-while(cam && duration<timer){
-    cap>>imgOriginalON;
+while(duration<timer){
+    cap>>imgOriginal1;
     duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
 }
 
-cout<<"Taking On"<<endl;
-if(cam)
-	cap>>imgOriginalON;
-cout<<"Taking OFF in "<<timer<<" s"<<endl;
+cout<<"Taking 1"<<endl;
+	cap>>imgOriginal1;
+
+cout<<"Taking 2 in "<<timer<<" s"<<endl;
 
 start = std::clock();
 duration=0;
-while(cam && duration<timer){
-    cap>>imgOriginalOFF;
+while(duration<timer){
+    cap>>imgOriginal2;
     duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
 }
 
-cout<<"Taking OFF"<<endl;
-if(cam)
-	cap>>imgOriginalOFF;
+cout<<"Taking 2"<<endl;
+	cap>>imgOriginal2;
 
-Mat imgHSVON,imgHSVOFF;
+cout<<"Taking 3 in "<<timer<<" s"<<endl;
 
- if(imgOriginalON.empty() || imgOriginalOFF.empty())
+start = std::clock();
+duration=0;
+while(duration<timer){
+    cap>>imgOriginal3;
+    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+}
+
+cout<<"Taking 3"<<endl;
+	cap>>imgOriginal3;
+
+Mat imgHSV1,imgHSV2, imgHSV3;
+
+ if(imgOriginal1.empty() || imgOriginal2.empty() || imgOriginal3.empty())
  {
      cout << "can not open " << endl;
      return -1;
  }
 
    Mat diff;
-   absdiff(imgOriginalON,imgOriginalOFF,diff);
+   absdiff(imgOriginal1,imgOriginal2,diff);
    cvtColor(diff, diff, COLOR_BGR2GRAY); //Convert the captured 
   
   threshold(diff, diff, thresh, 255, cv::THRESH_BINARY);
   dilate(diff, diff, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
 
-  //Initialize blobdetector with predefine parameters
-  //lab computer version
-  //SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
-  //blobDetect.detect( diff, keypoints );
   //opencv 3.0 version
+	//detect beacon blobs between pictures 1&2
   Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
   blobDetect->detect( diff, keypoints );
-Mat out;
+cout<<keypoints.size()<<endl;
+  //detect blobs between images 2&3
+  if(keypoints.size() ==0){
+	absdiff(imgOriginal2,imgOriginal3,diff);
+   	cvtColor(diff, diff, COLOR_BGR2GRAY); //Convert the captured 
+  
+  	threshold(diff, diff, thresh, 255, cv::THRESH_BINARY);
+  	dilate(diff, diff, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
+
+	blobDetect = SimpleBlobDetector::create(params);
+ 	blobDetect->detect( diff, keypoints );
+  }
+cout<<keypoints.size()<<endl;
+
+  Mat out;
   drawKeypoints(diff, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
-/*
+/*//finding if things are green or red
   cvtColor(out, out, COLOR_BGR2HSV);
   inRange(out, Scalar(hsv.hL, hsv.sL, hsv.vL),
          Scalar(hsv.hH, hsv.sH, hsv.vH), out);
@@ -128,7 +145,7 @@ Mat out;
 	if(keypoints[i].size>0)
     	   circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 1, 8);
     }
-
+string text;
    if(keypoints.size() == 4){
     text = "Object Found";
     cout<<endl<<endl<<"Object Found"<<endl;
@@ -142,8 +159,9 @@ Mat out;
 	while(keypoints.size() > 2)
 	   thresh+=5;
   }
-  imshow("Original ON", imgOriginalON); //show the original image
-  imshow("Original OFF", imgOriginalOFF); //show the original image
+  imshow("Original 1", imgOriginal1); //show the original image
+  imshow("Original 2", imgOriginal2); //show the original image
+  imshow("Original 3", imgOriginal3); //show the original image
   imshow("Diff", out);
   waitKey(-1);
     
