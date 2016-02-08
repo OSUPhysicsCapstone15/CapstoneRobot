@@ -82,7 +82,7 @@ while(true){
   if(keypoints.size() == 1){
     text = "Object Found";
     cout<<endl<<endl<<"Object Found"<<endl;
-    tilt_turn_degrees(img, keypoints[0].pt.y, keypoints[0].pt.x);
+    tilt_turn_degrees(img, keypoints[0].pt.y, keypoints[0].pt.x, 1);
   }
   if(keypoints.size() > 1){
     text = "Error";
