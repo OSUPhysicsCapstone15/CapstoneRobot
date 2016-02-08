@@ -92,9 +92,9 @@ void removenoise(Mat& image){
 //objectCols -> columns from the top that the object is
 void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
 
-    double camera_height = 23.5;     // height of camera from ground in inches
+    double camera_height = 23.25;     // height of camera from ground in inches
     double beacon_height = 30.5;
-    int camera_diagonal_angle = 69; // diagonal angle of view for camera in degrees
+    double camera_diagonal_angle = 75; // diagonal angle of view for camera in degrees
                                     // logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
 
     int rows = img.rows; // height of camera image in pixels

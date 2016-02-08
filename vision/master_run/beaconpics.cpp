@@ -1,6 +1,24 @@
 #include "beacon.h"
 #include "functions.h"
 
+Point findkeyPoint(vector<KeyPoint> keypoints){
+  int left=keypoints[0].pt.x,right=keypoints[0].pt.x,top=keypoints[0].pt.y,bot=keypoints[0].pt.y;
+  for(int i=1;i<keypoints.size();i++){
+	if(keypoints[i].pt.x<left){
+		left=keypoints[i].pt.x;
+		top=keypoints[i].pt.y;
+	}
+	if(keypoints[i].pt.x>right){
+		right=keypoints[i].pt.x;
+		bot=keypoints[i].pt.y;
+	}
+  }
+
+int xcent=(right+left)/2;
+int ycent=(top+bot)/2;
+return Point(xcent,ycent);
+
+}
 
 int beaconpics_main()
  {
@@ -8,7 +26,7 @@ int thresh=150;
   namedWindow("Original 1", WINDOW_AUTOSIZE);
   namedWindow("Original 2", WINDOW_AUTOSIZE);
   namedWindow("Original 3", WINDOW_AUTOSIZE);
-  namedWindow("Diff", WINDOW_AUTOSIZE);
+  namedWindow("Diff", WINDOW_NORMAL);
 
   //hsvParams hsv = {76,0,224,97,37,255};
   hsvParams hsv = {20,0,0,97,37,255};
@@ -57,7 +75,10 @@ while(duration<timer){
     cap>>imgOriginal1;
     duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
 }
-
+ cvtColor( imgOriginal1, imgOriginal1, COLOR_BGR2GRAY );
+ imwrite( "../angles.jpg", imgOriginal1 );
+imshow("Diff",imgOriginal1);
+waitKey(-1);
 cout<<"Taking 1"<<endl;
 	cap>>imgOriginal1;
 
@@ -149,9 +170,10 @@ string text;
    if(keypoints.size() == 4){
     text = "Object Found";
     cout<<endl<<endl<<"Object Found"<<endl;
-    int xCord=((keypoints[0].pt.x)+(keypoints[1].pt.x))/2;
-    int yCord=abs((keypoints[1].pt.y)+(keypoints[0].pt.y))/2;
-    tilt_turn_degrees(diff, yCord, xCord);
+    Point cent;
+    cent=findkeyPoint(keypoints);
+    circle(out, cent, 5, CV_RGB(0,100,0), -1, 8);
+    tilt_turn_degrees(diff, cent.y, cent.x);
   }
   else{
     text = "Error";
