@@ -1,25 +1,6 @@
 #include "beacon.h"
 #include "functions.h"
 
-Point findkeyPoint(vector<KeyPoint> keypoints){
-  int left=keypoints[0].pt.x,right=keypoints[0].pt.x,top=keypoints[0].pt.y,bot=keypoints[0].pt.y;
-  for(int i=1;i<keypoints.size();i++){
-	if(keypoints[i].pt.x<left){
-		left=keypoints[i].pt.x;
-		top=keypoints[i].pt.y;
-	}
-	if(keypoints[i].pt.x>right){
-		right=keypoints[i].pt.x;
-		bot=keypoints[i].pt.y;
-	}
-  }
-
-int xcent=(right+left)/2;
-int ycent=(top+bot)/2;
-return Point(xcent,ycent);
-
-}
-
 int beaconpics_main()
  {
 int thresh=150;
@@ -173,7 +154,7 @@ string text;
     Point cent;
     cent=findkeyPoint(keypoints);
     circle(out, cent, 5, CV_RGB(0,100,0), -1, 8);
-    tilt_turn_degrees(diff, cent.y, cent.x);
+    tilt_turn_degrees(diff, cent.y, cent.x, 1);
   }
   else{
     text = "Error";

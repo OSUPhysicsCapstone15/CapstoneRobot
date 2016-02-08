@@ -90,37 +90,64 @@ void removenoise(Mat& image){
 //img -> the current camera image
 //objectRows -> rows from the left that the object is in
 //objectCols -> columns from the top that the object is
-void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
+//targetIsBeacon -> 1 if target is becon, 0 otherwise
+void tilt_turn_degrees(Mat img, int object_rows, int object_cols, bool targetIsBeacon){
 
-    double camera_height = 23.25;     // height of camera from ground in inches
+    double camera_height = 23.25;     						// height of camera from ground in inches
     double beacon_height = 30.5;
-    double camera_diagonal_angle = 75; // diagonal angle of view for camera in degrees
-                                    // logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
+    double object_height = 1.0;
+    double target_height;
 
-    int rows = img.rows; // height of camera image in pixels
-    int cols = img.cols; // width of camera image in pixels
+    int rows = img.rows; 							// height of camera image in pixels
+    int cols = img.cols; 							// width of camera image in pixels
 
-    double pixel_diagonal = sqrt(rows * rows + cols * cols); // (pythagorean) diagonal length of image in pixels
-    double degrees_per_pixel = camera_diagonal_angle / pixel_diagonal; // ratio of real world degrees to pixels in the image
+    double aspectRatio = cols/rows;
 
-    int center_rows = rows / 2; // the center height is half of the total height
-    int center_cols = cols / 2; // the center width is half of the total width
+    double horizontalFOV = 55.85; 						//horizontalFOV is a property of a specific camera
+    double verticalFOV = 2 * atan(tan(horizontalFOV / 2) * aspectRatio); 	//conversion form horizontal to vertical FOV
 
-    int diff_rows = center_rows - object_rows; // difference between center and object rows
-    int diff_cols = center_cols - object_cols; // difference between center and object cols
+    (targetIsBeacon) ? target_height = beacon_height : target_height = object_height;
 
-    double turn_robot_x_degrees = diff_cols * degrees_per_pixel; // positive -> turn left, negative -> turn right
-    double tilt_camera_x_degrees = abs(diff_rows) * degrees_per_pixel; // positive -> tilt up, negative -> tilt down
-    cout << "Turn robot " << turn_robot_x_degrees << " degrees.\n" << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
+    double verticalRatio = verticalFOV / rows;  				//ratio of real world degrees to pixels in the image
+    double horizontalRatio = horizontalFOV / cols;
 
-    double tilted_degrees = 90 - tilt_camera_x_degrees; // assuming camera is parallel to ground (90 degrees)
+    int center_rows = rows / 2; 						// the center height is half of the total height
+    int center_cols = cols / 2; 						// the center width is half of the total width
 
-    double tilted_radians = tilted_degrees * 3.1415962 / 180.0; // c++ tan() function uses radians
+    int diff_rows = center_rows - object_rows; 					// difference between center and object rows
+    int diff_cols = center_cols - object_cols; 					// difference between center and object cols
 
-    double height = beacon_height - camera_height; // height of camera from the beacon
+    double turn_robot_x_degrees = diff_cols * horizontalRatio; 			// positive -> turn left, negative -> turn right
 
-    double distance = height * tan(tilted_radians); // triangle formula for finding distance
+    double tilt_camera_x_degrees = diff_rows * verticalRatio; 			// positive -> tilt up, negative -> tilt down
 
+    double tilted_radians = tilt_camera_x_degrees * 3.1415962 / 180.0; 		// c++ tan() function uses radians
+
+    double height_diff = target_height - camera_height; 			// height of camera from the beacon
+
+    double distance = height_diff / tan(tilted_radians); 			// triangle formula for finding distance
+
+    cout << "Turn robot " << turn_robot_x_degrees << " degrees." << endl;
+    //cout << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
     cout << "Distance is " << distance << " inches" << endl;
+}
+
+Point findkeyPoint(vector<KeyPoint> keypoints){
+  int left=keypoints[0].pt.x,right=keypoints[0].pt.x,top=keypoints[0].pt.y,bot=keypoints[0].pt.y;
+  for(int i=1;i<keypoints.size();i++){
+        if(keypoints[i].pt.x<left){
+                left=keypoints[i].pt.x;
+                top=keypoints[i].pt.y;
+        }
+        if(keypoints[i].pt.x>right){
+                right=keypoints[i].pt.x;
+                bot=keypoints[i].pt.y;
+        }
+  }
+
+  int xcent=(right+left)/2;
+  int ycent=(top+bot)/2;
+  return Point(xcent,ycent);
+
 }
 

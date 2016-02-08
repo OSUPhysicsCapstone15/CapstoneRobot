@@ -25,10 +25,13 @@ Mat findBiggestBlob(Mat &src);
 
 void findGrass(Mat &src, Mat &HSV);
 
-void tilt_turn_degrees(Mat img, int object_rows, int object_cols);
+void tilt_turn_degrees(Mat img, int object_rows, int object_cols, bool beaconIsTarget);
+
+Point findkeyPoint(vector<KeyPoint> keypoints);
 
 int blob_main();
 
 int beacon_main();
 
 #endif
+
