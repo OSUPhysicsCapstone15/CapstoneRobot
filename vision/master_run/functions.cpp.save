@@ -98,24 +98,24 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols, bool targetIsB
     double object_height = 1.0;
     double target_height;
 
-    double rows = img.rows; 							// height of camera image in pixels
-    double cols = img.cols; 							// width of camera image in pixels
+    int rows = img.rows; 							// height of camera image in pixels
+    int cols = img.cols; 							// width of camera image in pixels
 
     double aspectRatio = cols/rows;
 
     double horizontalFOV = 55.85; 						//horizontalFOV is a property of a specific camera
-    double verticalFOV = ((2.0 * 180.0) / 3.1415962) * atan(tan((horizontalFOV * 3.1415962 / 180.0) / 2.0) * aspectRatio); 	//conversion form horizontal to vertical FOV
+    double verticalFOV = 2 * atan(tan(horizontalFOV / 2) * aspectRatio); 	//conversion form horizontal to vertical FOV
 
     (targetIsBeacon) ? target_height = beacon_height : target_height = object_height;
 
     double verticalRatio = verticalFOV / rows;  				//ratio of real world degrees to pixels in the image
     double horizontalRatio = horizontalFOV / cols;
 
-    double center_rows = rows / 2.0; 						// the center height is half of the total height
-    double center_cols = cols / 2.0; 						// the center width is half of the total width
+    int center_rows = rows / 2; 						// the center height is half of the total height
+    int center_cols = cols / 2; 						// the center width is half of the total width
 
-    double diff_rows = center_rows - object_rows; 					// difference between center and object rows
-    double diff_cols = center_cols - object_cols; 					// difference between center and object cols
+    int diff_rows = center_rows - object_rows; 					// difference between center and object rows
+    int diff_cols = center_cols - object_cols; 					// difference between center and object cols
 
     double turn_robot_x_degrees = diff_cols * horizontalRatio; 			// positive -> turn left, negative -> turn right
 
@@ -128,14 +128,8 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols, bool targetIsB
     double distance = height_diff / tan(tilted_radians); 			// triangle formula for finding distance
 
     cout << "Turn robot " << turn_robot_x_degrees << " degrees." << endl;
-    cout << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
-   cout << "vertical ratio, horizontal ratio" << verticalRatio << " " << horizontalRatio << endl;
-    cout << "verticalFOV is " << verticalFOV << endl;
-    cout << "rows is " << rows << endl;
-    cout << "cols is " << cols << endl;
-    cout << "aspect ratio is " << aspectRatio << endl;
-    cout << "height diff is " << height_diff << endl;
-     cout << "Distance is " << distance << " inches" << endl;
+    //cout << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
+    cout << "Distance is " << distance << " inches" << endl;
 }
 
 Point findkeyPoint(vector<KeyPoint> keypoints){

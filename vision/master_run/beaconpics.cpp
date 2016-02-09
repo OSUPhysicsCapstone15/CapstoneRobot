@@ -1,12 +1,14 @@
 #include "beacon.h"
 #include "functions.h"
+#include "sys/time.h"
+
 
 int beaconpics_main()
  {
 int thresh=150;
-  namedWindow("Original 1", WINDOW_AUTOSIZE);
-  namedWindow("Original 2", WINDOW_AUTOSIZE);
-  namedWindow("Original 3", WINDOW_AUTOSIZE);
+  namedWindow("Original 1", WINDOW_NORMAL);
+  namedWindow("Original 2", WINDOW_NORMAL);
+  namedWindow("Original 3", WINDOW_NORMAL);
   namedWindow("Diff", WINDOW_NORMAL);
 
   //hsvParams hsv = {76,0,224,97,37,255};
@@ -43,33 +45,38 @@ int thresh=150;
     }
   
 Mat imgOriginal1, imgOriginal2, imgOriginal3;
-clock_t start;
+//clock_t start;
+//int start;
+struct timeval tv1,tv2;
 double duration=0;
-double timer=.75;
+double timer=.50;
 
 while(true){
 
 cout<<"Taking 1 in "<<timer<<" s"<<endl;
-start = std::clock();
+//start = std::clock();
+gettimeofday(&tv1, NULL);
 duration=0;
 while(duration<timer){
     cap>>imgOriginal1;
-    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+    gettimeofday(&tv2, NULL);
+    duration = ((double)((tv2.tv_sec*1000000+tv2.tv_usec)-(tv1.tv_sec*1000000+tv1.tv_usec)))/1000000.00;
+    //duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
 }
- cvtColor( imgOriginal1, imgOriginal1, COLOR_BGR2GRAY );
- imwrite( "../angles.jpg", imgOriginal1 );
-imshow("Diff",imgOriginal1);
-waitKey(-1);
+
 cout<<"Taking 1"<<endl;
 	cap>>imgOriginal1;
 
 cout<<"Taking 2 in "<<timer<<" s"<<endl;
 
-start = std::clock();
+//start = std::clock();
+gettimeofday(&tv1, NULL);
 duration=0;
 while(duration<timer){
     cap>>imgOriginal2;
-    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+    gettimeofday(&tv2, NULL);
+    duration = ((double)((tv2.tv_sec*1000000+tv2.tv_usec)-(tv1.tv_sec*1000000+tv1.tv_usec)))/1000000.00;
+//    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
 }
 
 cout<<"Taking 2"<<endl;
@@ -77,11 +84,14 @@ cout<<"Taking 2"<<endl;
 
 cout<<"Taking 3 in "<<timer<<" s"<<endl;
 
-start = std::clock();
+//start = std::clock();
+gettimeofday(&tv1, NULL);
 duration=0;
 while(duration<timer){
     cap>>imgOriginal3;
-    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+    gettimeofday(&tv2, NULL);
+    duration = ((double)((tv2.tv_sec*1000000+tv2.tv_usec)-(tv1.tv_sec*1000000+tv1.tv_usec)))/1000000.00;
+//    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
 }
 
 cout<<"Taking 3"<<endl;
@@ -97,8 +107,8 @@ Mat imgHSV1,imgHSV2, imgHSV3;
 
    Mat diff;
    absdiff(imgOriginal1,imgOriginal2,diff);
-   cvtColor(diff, diff, COLOR_BGR2GRAY); //Convert the captured 
-  
+   cvtColor(diff, diff, COLOR_BGR2GRAY); //Convert the captured
+
   threshold(diff, diff, thresh, 255, cv::THRESH_BINARY);
   dilate(diff, diff, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
 
@@ -110,8 +120,8 @@ cout<<keypoints.size()<<endl;
   //detect blobs between images 2&3
   if(keypoints.size() ==0){
 	absdiff(imgOriginal2,imgOriginal3,diff);
-   	cvtColor(diff, diff, COLOR_BGR2GRAY); //Convert the captured 
-  
+   	cvtColor(diff, diff, COLOR_BGR2GRAY); //Convert the captured
+
   	threshold(diff, diff, thresh, 255, cv::THRESH_BINARY);
   	dilate(diff, diff, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)) );
 
@@ -159,8 +169,8 @@ string text;
   else{
     text = "Error";
     cout<<endl<<endl<<"No Object Found"<<endl;
-	while(keypoints.size() > 2)
-	   thresh+=5;
+//	while(keypoints.size() > 2)
+//	   thresh+=5;
   }
   imshow("Original 1", imgOriginal1); //show the original image
   imshow("Original 2", imgOriginal2); //show the original image
