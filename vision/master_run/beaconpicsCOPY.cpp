@@ -47,16 +47,16 @@ int beaconpics_main()
        return -1;
   }
 
-  //Mat imgOriginal1, imgOriginal2, imgOriginal3;
+  Mat imgOriginal1, imgOriginal2, imgOriginal3;
   //clock_t start;
   //int start;
-  //struct timeval tv1,tv2;
-  //double duration=0;
-  //double timer=.50;
+  struct timeval tv1,tv2;
+  double duration=0;
+  double timer=.50;
 
   while(true){
 
-   /* cout<<"Taking 1 in "<<timer<<" s"<<endl;
+    cout<<"Taking 1 in "<<timer<<" s"<<endl;
     //start = std::clock();
     gettimeofday(&tv1, NULL);
     duration=0;
@@ -99,10 +99,6 @@ int beaconpics_main()
 
     cout<<"Taking 3"<<endl;
 	cap>>imgOriginal3;
-*/
-    Mat imgOriginal1 = getPic(cap);
-    Mat imgOriginal2 = getPic(cap);
-    Mat imgOriginal3 = getPic(cap);
 
     Mat imgHSV1,imgHSV2, imgHSV3;
 

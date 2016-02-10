@@ -190,3 +190,27 @@ int printDistanceFromLights(vector<KeyPoint> keypoints){
         return dist;
 }
 
+Mat getPic(VideoCapture cap)
+{
+    Mat img;
+    struct timeval tv1,tv2;
+    double duration=0;
+    double timer=.50;
+
+    cout<<"Taking pic in "<<timer<<" s"<<endl;
+    //start = std::clock();
+    gettimeofday(&tv1, NULL);
+    duration=0;
+    while(duration<timer)
+    {
+       cap>>img;
+       gettimeofday(&tv2, NULL);
+       duration = ((double)((tv2.tv_sec*1000000+tv2.tv_usec)-(tv1.tv_sec*1000000+tv1.tv_usec)))/1000000.00;
+       //duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+    }
+
+    cout<<"Taking pic"<<endl;
+    cap>>img;
+
+    return img;
+}

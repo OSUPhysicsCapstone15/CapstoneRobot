@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <string>
 #include <ctime>
+#include "sys/time.h"
 using namespace std;
 using namespace cv;
 
@@ -34,6 +35,8 @@ int blob_main();
 int beacon_main();
 
 int printDistanceFromLights(vector<KeyPoint> keypoints);
+
+Mat getPic(VideoCapture cap);
 
 #endif
 
