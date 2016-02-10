@@ -1,11 +1,11 @@
-#include "beacon.h"
+#include "beaconpics.h"
 #include "functions.h"
 #include "sys/time.h"
 
 
 int beaconpics_main()
  {
-int thresh=150;
+int thresh=130;
   namedWindow("Original 1", WINDOW_NORMAL);
   namedWindow("Original 2", WINDOW_NORMAL);
   namedWindow("Original 3", WINDOW_NORMAL);
@@ -29,7 +29,7 @@ int thresh=150;
 
         params.minArea = 0;
         params.minConvexity = 0.3;
-        params.minInertiaRatio = 0.15;
+        params.minInertiaRatio = 0.10;
 
         params.maxArea = 2000;
         params.maxConvexity = 10;
@@ -38,6 +38,9 @@ int thresh=150;
   vector<KeyPoint> keypoints;
 
     VideoCapture cap(0); //capture the video from web cam
+//    cap.set(CV_CAP_PROP_FRAME_WIDTH,640);
+//    cap.set(CV_CAP_PROP_FRAME_HEIGHT,480);
+
     if ( !cap.isOpened() )  // if not success, exit program
     {
          cout << "Cannot open the web cam" << endl;
@@ -158,13 +161,14 @@ cout<<keypoints.size()<<endl;
     	   circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 1, 8);
     }
 string text;
-   if(keypoints.size() == 4){
+   if(keypoints.size() == 2){
     text = "Object Found";
     cout<<endl<<endl<<"Object Found"<<endl;
     Point cent;
     cent=findkeyPoint(keypoints);
+    cout<<"dist: "<<printDistanceFromLights(keypoints)<<endl;; 
     circle(out, cent, 5, CV_RGB(0,100,0), -1, 8);
-    tilt_turn_degrees(diff, cent.y, cent.x, 1);
+//    tilt_turn_degrees(diff, cent.y, cent.x, 1);
   }
   else{
     text = "Error";

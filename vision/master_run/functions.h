@@ -33,5 +33,7 @@ int blob_main();
 
 int beacon_main();
 
+int printDistanceFromLights(vector<KeyPoint> keypoints);
+
 #endif
 

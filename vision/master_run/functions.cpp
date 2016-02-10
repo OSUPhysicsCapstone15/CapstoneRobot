@@ -117,6 +117,9 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols, bool targetIsB
     double diff_rows = center_rows - object_rows; 					// difference between center and object rows
     double diff_cols = center_cols - object_cols; 					// difference between center and object cols
 
+//    double tilt_camera_x_degrees = .0738 * diff_rows - .6741;
+//    double turn_robot_x_degrees = .0758 * diff_cols - .2716;
+
     double turn_robot_x_degrees = diff_cols * horizontalRatio; 			// positive -> turn left, negative -> turn right
 
     double tilt_camera_x_degrees = diff_rows * verticalRatio; 			// positive -> tilt up, negative -> tilt down
@@ -129,13 +132,16 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols, bool targetIsB
 
     cout << "Turn robot " << turn_robot_x_degrees << " degrees." << endl;
     cout << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
-   cout << "vertical ratio, horizontal ratio" << verticalRatio << " " << horizontalRatio << endl;
-    cout << "verticalFOV is " << verticalFOV << endl;
+    cout << "Tilt radians " << tilted_radians << endl;
+    cout << "tan(tilted_radians) = " << tan(tilted_radians) << endl;
+    cout << "diff_rows = " << diff_rows << endl;
+//   cout << "vertical ratio, horizontal ratio" << verticalRatio << " " << horizontalRatio << endl;
+//    cout << "verticalFOV is " << verticalFOV << endl;
     cout << "rows is " << rows << endl;
     cout << "cols is " << cols << endl;
-    cout << "aspect ratio is " << aspectRatio << endl;
+//    cout << "aspect ratio is " << aspectRatio << endl;
     cout << "height diff is " << height_diff << endl;
-     cout << "Distance is " << distance << " inches" << endl;
+    cout << "Distance is " << distance << " inches" << endl;
 }
 
 Point findkeyPoint(vector<KeyPoint> keypoints){
@@ -155,5 +161,32 @@ Point findkeyPoint(vector<KeyPoint> keypoints){
   int ycent=(top+bot)/2;
   return Point(xcent,ycent);
 
+}
+
+int printDistanceFromLights(vector<KeyPoint> keypoints){
+        int top=keypoints[0].pt.y,bot=keypoints[0].pt.y,left=keypoints[0].pt.x,right=keypoints[0].pt.x;
+        for(int i=1;i<keypoints.size();i++){
+                if(keypoints[i].pt.y>top)
+                        top=keypoints[i].pt.y;
+
+                if(keypoints[i].pt.x<left)
+			left=keypoints[i].pt.x;
+
+                if(keypoints[i].pt.y<bot)
+                        bot=keypoints[i].pt.y;
+
+                if(keypoints[i].pt.x>right)
+                        right=keypoints[i].pt.x;
+
+        }
+        int height=top-bot;
+	int width = left-right;
+
+        cout<<"distance between left and right lights in pixels: "<<width<<endl;
+        cout<<"distance between top and bottom lights in pixels: "<<height<<endl; //use for distance formula
+	cout << "difference between height and width in pixels: " << height - width << endl; //use for beacon orientation
+	cout << "distance between center point and beacon center in pixels: " << ((left+right)/2)-320 << endl; //use for robot angle
+        int dist=40051*pow(height,-.997);
+        return dist;
 }
 
