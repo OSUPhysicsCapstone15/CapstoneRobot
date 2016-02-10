@@ -2,7 +2,6 @@
 #include "functions.h"
 #include "sys/time.h"
 
-
 int beaconpics_main()
 {
   int thresh=130;
@@ -16,6 +15,7 @@ int beaconpics_main()
 
   //Set up blob detection parameters
   SimpleBlobDetector::Params params;
+ // params.blobColor //can we use this???
   params.minDistBetweenBlobs = 50.0f;
   params.filterByInertia = true;
   params.filterByConvexity = false;
@@ -38,8 +38,6 @@ int beaconpics_main()
   vector<KeyPoint> keypoints;
 
   VideoCapture cap(0); //capture the video from web cam
-  //    cap.set(CV_CAP_PROP_FRAME_WIDTH,640);
-  //    cap.set(CV_CAP_PROP_FRAME_HEIGHT,480);
 
   if ( !cap.isOpened() )  // if not success, exit program
   {
@@ -47,59 +45,8 @@ int beaconpics_main()
        return -1;
   }
 
-  //Mat imgOriginal1, imgOriginal2, imgOriginal3;
-  //clock_t start;
-  //int start;
-  //struct timeval tv1,tv2;
-  //double duration=0;
-  //double timer=.50;
-
   while(true){
 
-   /* cout<<"Taking 1 in "<<timer<<" s"<<endl;
-    //start = std::clock();
-    gettimeofday(&tv1, NULL);
-    duration=0;
-    while(duration<timer){
-      cap>>imgOriginal1;
-      gettimeofday(&tv2, NULL);
-      duration = ((double)((tv2.tv_sec*1000000+tv2.tv_usec)-(tv1.tv_sec*1000000+tv1.tv_usec)))/1000000.00;
-      //duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
-    }
-
-    cout<<"Taking 1"<<endl;
-	cap>>imgOriginal1;
-
-    cout<<"Taking 2 in "<<timer<<" s"<<endl;
-
-    //start = std::clock();
-    gettimeofday(&tv1, NULL);
-    duration=0;
-    while(duration<timer){
-      cap>>imgOriginal2;
-      gettimeofday(&tv2, NULL);
-      duration = ((double)((tv2.tv_sec*1000000+tv2.tv_usec)-(tv1.tv_sec*1000000+tv1.tv_usec)))/1000000.00;
-  //    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
-    }
-
-    cout<<"Taking 2"<<endl;
-	cap>>imgOriginal2;
-
-    cout<<"Taking 3 in "<<timer<<" s"<<endl;
-
-    //start = std::clock();
-    gettimeofday(&tv1, NULL);
-    duration=0;
-    while(duration<timer){
-      cap>>imgOriginal3;
-      gettimeofday(&tv2, NULL);
-      duration = ((double)((tv2.tv_sec*1000000+tv2.tv_usec)-(tv1.tv_sec*1000000+tv1.tv_usec)))/1000000.00;
-  //    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
-    }
-
-    cout<<"Taking 3"<<endl;
-	cap>>imgOriginal3;
-*/
     Mat imgOriginal1 = getPic(cap);
     Mat imgOriginal2 = getPic(cap);
     Mat imgOriginal3 = getPic(cap);
@@ -158,6 +105,7 @@ int beaconpics_main()
     blobDetect.detect( out, keypoints );
     drawKeypoints(out, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
     */
+
     //Circle blobs
     for(int i = 0; i < keypoints.size(); i++)
     {
@@ -165,16 +113,18 @@ int beaconpics_main()
       	   circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 1, 8);
     }
     string text;
-    if(keypoints.size() == 2){
+    if(keypoints.size() == 2)
+    {
       text = "Object Found";
       cout<<endl<<endl<<"Object Found"<<endl;
       Point cent;
       cent=findkeyPoint(keypoints);
       cout<<"dist: "<<printDistanceFromLights(keypoints)<<endl;; 
       circle(out, cent, 5, CV_RGB(0,100,0), -1, 8);
-  //    tilt_turn_degrees(diff, cent.y, cent.x, 1);
+      //tilt_turn_degrees(diff, cent.y, cent.x, 1);
     }
-    else{
+    else
+    {
       text = "Error";
       cout<<endl<<endl<<"No Object Found"<<endl;
   //	while(keypoints.size() > 2)
@@ -185,7 +135,6 @@ int beaconpics_main()
     imshow("Original 3", imgOriginal3); //show the original image
     imshow("Diff", out);
     waitKey(-1);
-
   }
   return 0;
 }
