@@ -4,7 +4,7 @@
 
 int beaconpics_main()
 {
-  int thresh=130;
+  int thresh=190;
   namedWindow("Original 1", WINDOW_NORMAL);
   namedWindow("Original 2", WINDOW_NORMAL);
   namedWindow("Original 3", WINDOW_NORMAL);
@@ -23,7 +23,7 @@ int beaconpics_main()
   params.filterByCircularity = false;
   params.filterByArea = true;
 
-        params.minThreshold = 100;
+        params.minThreshold = 190;
         params.maxThreshold = 255;
         params.thresholdStep = 1;
 
@@ -113,7 +113,7 @@ int beaconpics_main()
       	   circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 1, 8);
     }
     string text;
-    if(keypoints.size() == 2)
+    if(keypoints.size() == 4)
     {
       text = "Object Found";
       cout<<endl<<endl<<"Object Found"<<endl;
@@ -121,7 +121,7 @@ int beaconpics_main()
       cent=findkeyPoint(keypoints);
       cout<<"dist: "<<printDistanceFromLights(keypoints)<<endl;; 
       circle(out, cent, 5, CV_RGB(0,100,0), -1, 8);
-      //tilt_turn_degrees(diff, cent.y, cent.x, 1);
+      tilt_turn_degrees(diff, cent.y, cent.x, 1);
     }
     else
     {
