@@ -4,7 +4,7 @@
 
 int beaconpics_main()
 {
-  int thresh=190;
+  int thresh=140;
   namedWindow("Original 1", WINDOW_NORMAL);
   namedWindow("Original 2", WINDOW_NORMAL);
   namedWindow("Original 3", WINDOW_NORMAL);
@@ -16,14 +16,14 @@ int beaconpics_main()
   //Set up blob detection parameters
   SimpleBlobDetector::Params params;
  // params.blobColor //can we use this???
-  params.minDistBetweenBlobs = 50.0f;
+ // params.minDistBetweenBlobs = 50.0f;
   params.filterByInertia = true;
   params.filterByConvexity = false;
   params.filterByColor = false;
   params.filterByCircularity = false;
   params.filterByArea = true;
 
-        params.minThreshold = 190;
+        params.minThreshold = 150;
         params.maxThreshold = 255;
         params.thresholdStep = 1;
 
