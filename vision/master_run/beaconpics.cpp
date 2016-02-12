@@ -2,7 +2,8 @@
 #include "functions.h"
 #include "sys/time.h"
 
-int beaconpics_main()
+
+int beaconpics_main(struct beacon_loc orientation)
 {
   int thresh=140;
   namedWindow("Original 1", WINDOW_NORMAL);
@@ -119,9 +120,9 @@ int beaconpics_main()
       cout<<endl<<endl<<"Object Found"<<endl;
       Point cent;
       cent=findkeyPoint(keypoints);
-      cout<<"dist: "<<printDistanceFromLights(keypoints)<<endl;; 
+ //     cout<<"dist: "<<printDistanceFromLights(keypoints)<<endl; 
       circle(out, cent, 5, CV_RGB(0,100,0), -1, 8);
-      tilt_turn_degrees(diff, cent.y, cent.x, 1);
+      robot_angle(diff, cent.y, cent.x, 1);
     }
     else
     {
