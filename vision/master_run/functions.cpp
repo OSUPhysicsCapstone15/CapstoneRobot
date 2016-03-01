@@ -185,7 +185,7 @@ int printDistanceFromLights(vector<KeyPoint> keypoints){
 
 //       cout<<"distance between left and right lights in pixels: "<<width<<endl;
 //       cout<<"distance between top and bottom lights in pixels: "<<height<<endl; //use for distance formula
-//	cout << "difference between height and width in pixels: " << height - width << endl; //use for beacon orientation
+	cout << "the width is " << (height - width) / height << " percent of the height." <<  endl; //use for beacon orientation
 //	cout << "distance between center point and beacon center in pixels: " << ((left+right)/2)-320 << endl; //use for robot angle
         int dist=40051*pow(height,-.997);
         return dist;
