@@ -2,9 +2,10 @@
 #include "functions.h"
 #include "sys/time.h"
 
-int beaconpics_main()
+
+int beaconpics_main(struct beacon_loc orientation)
 {
-  int thresh=190;
+  int thresh=140;
   namedWindow("Original 1", WINDOW_NORMAL);
   namedWindow("Original 2", WINDOW_NORMAL);
   namedWindow("Original 3", WINDOW_NORMAL);
@@ -16,14 +17,14 @@ int beaconpics_main()
   //Set up blob detection parameters
   SimpleBlobDetector::Params params;
  // params.blobColor //can we use this???
-  params.minDistBetweenBlobs = 50.0f;
+ // params.minDistBetweenBlobs = 50.0f;
   params.filterByInertia = true;
   params.filterByConvexity = false;
   params.filterByColor = false;
   params.filterByCircularity = false;
   params.filterByArea = true;
 
-        params.minThreshold = 190;
+        params.minThreshold = 150;
         params.maxThreshold = 255;
         params.thresholdStep = 1;
 
@@ -119,9 +120,9 @@ int beaconpics_main()
       cout<<endl<<endl<<"Object Found"<<endl;
       Point cent;
       cent=findkeyPoint(keypoints);
-      cout<<"dist: "<<printDistanceFromLights(keypoints)<<endl;; 
+ //     cout<<"dist: "<<printDistanceFromLights(keypoints)<<endl; 
       circle(out, cent, 5, CV_RGB(0,100,0), -1, 8);
-      tilt_turn_degrees(diff, cent.y, cent.x, 1);
+      robot_angle(diff, cent.y, cent.x, 1);
     }
     else
     {

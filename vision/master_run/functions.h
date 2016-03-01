@@ -15,7 +15,6 @@
 using namespace std;
 using namespace cv;
 
-
 struct hsvParams{
   int hL, sL, vL, hH, sH, vH;
 };
@@ -26,7 +25,7 @@ Mat findBiggestBlob(Mat &src);
 
 void findGrass(Mat &src, Mat &HSV);
 
-void tilt_turn_degrees(Mat img, int object_rows, int object_cols, bool beaconIsTarget);
+void robot_angle(Mat img, int object_rows, int object_cols, bool targetIsBeacon);
 
 Point findkeyPoint(vector<KeyPoint> keypoints);
 
@@ -34,7 +33,7 @@ int blob_main();
 
 int beacon_main();
 
-int printDistanceFromLights(vector<KeyPoint> keypoints);
+void printDistanceFromLights(vector<KeyPoint> keypoints);
 
 Mat getPic(VideoCapture cap);
 

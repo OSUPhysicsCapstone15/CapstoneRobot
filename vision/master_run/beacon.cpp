@@ -134,7 +134,7 @@ Mat out;
     cout<<endl<<endl<<"Object Found"<<endl;
     int xCord=((keypoints[0].pt.x)+(keypoints[1].pt.x))/2;
     int yCord=abs((keypoints[1].pt.y)+(keypoints[0].pt.y))/2;
-    tilt_turn_degrees(diff, yCord, xCord, 1);
+    robot_angle(diff, yCord, xCord, 1);
   }
   else{
     text = "Error";
