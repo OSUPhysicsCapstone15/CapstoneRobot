@@ -15,21 +15,52 @@ using namespace std;
 const float WIDTH = 1; //meters
 const float HEIGHT = 1; //meters
 
+struct beacon_loc {
+	float angle_from_robot=0; //degrees for all angles
+	float distance=0; //meters
+	float angle_from_beacon=0;
+	bool only_bottom=0;
+	bool beacon_not_found=0;
+	bool beacon_angle_conf=0;
+};
 
-beaconLocation(vector<KeyPoint> keyPoints, beacon_loc *b_loc) {
+//returns true if success, false otherwise
+bool beaconLocation(vector<KeyPoint> keyPoints, beacon_loc *b_loc) {
 	//convert keypoints to point2f points
 	vector<Point2f> imgPoints;
-	KeyPoint.convert(keyPoints, imgPoints);
+	KeyPoint::convert(keyPoints, imgPoints);
 
 	//fill known points with beacon dimensions
-	vector<Point2f> kwnPoints = {Point2f(0, HEIGHT/2), //Top
-								Point2f(-WIDTH/2, 0),  //Left
-								Point2f(WIDTH/2, 0), //Right
-								Point2f(0, -HEIGHT/2) //Bottom
+	vector<Point3f> kwnPoints = {Point3f(0, HEIGHT/2, 0), //Top
+								Point3f(-WIDTH/2, 0, 0),  //Left
+								Point3f(WIDTH/2, 0, 0), //Right
+								Point3f(0, -HEIGHT/2, 0) //Bottom
 	}; 
 
 	//get saved calibration matrix 
-	//TODO
+	string filename = "out_camera_data.xml";
+	FileStorage fs(filename, FileStorage::READ);
+	if(!fs.isOpened()) {
+		cout<<"Calibration file could not be opened"<<endl;
+		return false;
+	}
+	Mat cameraMatrix, distCoeffs;
+	fs["Camera_Matrix"]>>cameraMatrix;
+	fs["Distortion_Coefficients"]>>distCoeffs;
+	if(cameraMatrix.empty() || distCoeffs.empty()) {
+		cout<<"Calibration file not formatted correctly"<<endl;
+		return false;
+	} else {
+		cout<<"Camera Matrix"<<endl;
+		cout<<cameraMatrix<<endl;
+		cout<<"Distortion Coefficients"<<endl;
+		cout<<distCoeffs<<endl;
+	}
+
+	cout<<"Known Points"<<endl;
+	cout<<kwnPoints<<endl;
+	cout<<"Image Points"<<endl;
+	cout<<imgPoints<<endl;
 
 	//get roation-translation matrix
 	Mat rvec, tvec;
@@ -37,16 +68,20 @@ beaconLocation(vector<KeyPoint> keyPoints, beacon_loc *b_loc) {
 
 	//print out stuff for sanity check
 	cout<<"Rotation vector"<<endl;
-	for(MatConstIterator_< _Tp > it = rvec.begin(); it != rvec.end(); it++) {
+	cout<<rvec<<endl;
+	/*for(MatConstIterator_< float > it = rvec.begin<float>(); it != rvec.end<float>(); it++) {
 		cout<<*it<<endl;
-	}
+	}*/
 	cout<<"Translation vector"<<endl;
-	for(MatConstIterator_< _Tp > it = tvec.begin(); it != tvec.end(); it++) {
+	cout<<tvec<<endl;
+	/*for(MatConstIterator_< float > it = tvec.begin<float>(); it != tvec.end<float>(); it++) {
 		cout<<*it<<endl;
-	}
+	}*/
 
 	//fill beacon struct with appropriate values
 	//TODO
+
+	return true;
 
 }
 
@@ -55,6 +90,13 @@ beaconLocation(vector<KeyPoint> keyPoints, beacon_loc *b_loc) {
 
 int main(int argc, char* argv[]) {
 	beacon_loc b_loc;
+	vector<KeyPoint> points = {KeyPoint(5, 10, 1),
+								KeyPoint(0, 5, 1),
+								KeyPoint(10, 5, 1),
+								KeyPoint(5, 0, 1)
+	};
 	//do stuff
-	beaconLocation(points, &b_loc)
+	beaconLocation(points, &b_loc);
+
+	return 0;
 }
