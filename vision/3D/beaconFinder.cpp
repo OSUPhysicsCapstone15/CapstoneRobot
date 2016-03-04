@@ -12,8 +12,8 @@
 using namespace cv;
 using namespace std;
 
-const float WIDTH = 1; //meters
-const float HEIGHT = 1; //meters
+const float WIDTH = 5.015625; //meters
+const float HEIGHT = 5.96875; //meters
 
 struct beacon_loc {
 	float angle_from_robot=0; //degrees for all angles
@@ -69,14 +69,8 @@ bool beaconLocation(vector<KeyPoint> keyPoints, beacon_loc *b_loc) {
 	//print out stuff for sanity check
 	cout<<"Rotation vector"<<endl;
 	cout<<rvec<<endl;
-	/*for(MatConstIterator_< float > it = rvec.begin<float>(); it != rvec.end<float>(); it++) {
-		cout<<*it<<endl;
-	}*/
 	cout<<"Translation vector"<<endl;
 	cout<<tvec<<endl;
-	/*for(MatConstIterator_< float > it = tvec.begin<float>(); it != tvec.end<float>(); it++) {
-		cout<<*it<<endl;
-	}*/
 
 	//fill beacon struct with appropriate values
 	//TODO
@@ -90,10 +84,10 @@ bool beaconLocation(vector<KeyPoint> keyPoints, beacon_loc *b_loc) {
 
 int main(int argc, char* argv[]) {
 	beacon_loc b_loc;
-	vector<KeyPoint> points = {KeyPoint(5, 10, 1),
-								KeyPoint(0, 5, 1),
-								KeyPoint(10, 5, 1),
-								KeyPoint(5, 0, 1)
+	vector<KeyPoint> points = {KeyPoint(361, 235, 1),
+								KeyPoint(310, 301, 1),
+								KeyPoint(407, 296, 1),
+								KeyPoint(363, 362, 1)
 	};
 	//do stuff
 	beaconLocation(points, &b_loc);
