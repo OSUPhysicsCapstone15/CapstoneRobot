@@ -214,7 +214,7 @@ img = imread(filename, CV_LOAD_IMAGE_COLOR);
         Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
         blobDetect->detect( imgTHRESH, keypoints );
 
-        drawKeypoints(imgTHRESH, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
+        drawKeypoints(imgTHRESH, keypoints, out, CV_RGB(0,0,255), DrawMatchesFlags::DEFAULT);
         //Circle blobs
         for(int i = 0; i < keypoints.size(); i++)
             circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 20, 8);
