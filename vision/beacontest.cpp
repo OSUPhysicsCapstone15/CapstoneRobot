@@ -32,28 +32,28 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
     double camera_height = 1.2;     // height of camera from ground in meters
     int camera_diagonal_angle = 69; // diagonal angle of view for camera in degrees
                                     // logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
-    
+
     int rows = img.rows; // height of camera image in pixels
     int cols = img.cols; // width of camera image in pixels
     //cout << "Rows: " << rows << "\n" << "Cols: " << cols << endl;
-    
+
     //logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
     double camera_diagonal = 69; // the angle of the cameras diagonal in degrees
     double pixel_diagonal = sqrt(rows * rows + cols * cols); // (pythagorean) diagonal length of image in pixels
     double degrees_per_pixel = camera_diagonal / pixel_diagonal; // ratio of real world degrees to pixels in the image
-    
+
     int center_rows = rows / 2; // the center height is half of the total height
     int center_cols = cols / 2; // the center width is half of the total width
     //cout << "Center Rows: " << center_rows << "\n" << "Center Cols: " << center_cols << endl;
-    
+
     int diff_rows = center_rows - object_rows; // difference between center and object rows
     int diff_cols = center_cols - object_cols; // difference between center and object cols
     //cout << "Diff Rows: " << diff_rows << "\n" << "Diff Cols: " << diff_cols << endl;
-    
+
     double turn_robot_x_degrees = diff_cols * degrees_per_pixel; // positive -> turn left, negative -> turn right
     double tilt_camera_x_degrees = diff_rows * degrees_per_pixel; // positive -> tilt up, negative -> tilt down
     cout << "Turn robot " << turn_robot_x_degrees << " degrees.\n" << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
-    
+
     double tilted_degrees = 90 - tilt_camera_x_degrees; // assuming camera is parallel to ground (90 degrees)
 
     double tilted_radians = tilted_degrees * 3.1415962 / 180.0; // c++ tan() function uses radians
@@ -101,50 +101,52 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
 
   string text("Object not found");
 
-    VideoCapture cap(0); //capture the video from web cam
-    if ( !cap.isOpened() )  // if not success, exit program
-    {
-         cout << "Cannot open the web cam" << endl;
-         return -1;
-    }
+//    VideoCapture cap(0); //capture the video from web cam
+//    if ( !cap.isOpened() )  // if not success, exit program
+//    {
+//         cout << "Cannot open the web cam" << endl;
+//         return -1;
+//    }
 
 Mat imgOriginalON, imgOriginalOFF;
 clock_t start;
 double duration=0;
 double timer=1;
 
-while(true){
+//while(true){
 
-cout<<"Taking On in "<<timer<<" s"<<endl;
-start = std::clock();
-duration=0;
-while(duration<timer){
-    cap>>imgOriginalON;
-    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
-}
-
-cout<<"Taking On"<<endl;
-cap>>imgOriginalON;
-cout<<"Taking OFF in "<<timer<<" s"<<endl;
-
-start = std::clock();
-duration=0;
-while(duration<timer){
-    cap>>imgOriginalOFF;
-    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
-}
-
-cout<<"Taking OFF"<<endl;
-cap>>imgOriginalOFF;
+//cout<<"Taking On in "<<timer<<" s"<<endl;
+//start = std::clock();
+//duration=0;
+//while(duration<timer){
+//    cap>>imgOriginalON;
+//    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+//}
+//
+//cout<<"Taking On"<<endl;
+//cap>>imgOriginalON;
+//cout<<"Taking OFF in "<<timer<<" s"<<endl;
+//
+//start = std::clock();
+//duration=0;
+//while(duration<timer){
+//    cap>>imgOriginalOFF;
+//    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+//}
+//
+//cout<<"Taking OFF"<<endl;
+//cap>>imgOriginalOFF;
 
     Mat imgHSVON,imgHSVOFF;
- //imgOriginalON = imread("./beaconON.jpg");
- //imgOriginalOFF = imread("./beaconOFF.jpg");
- if(imgOriginalON.empty() || imgOriginalOFF.empty())
- {
-     cout << "can not open " << endl;
-     return -1;
- }
+ imgOriginalON = imread("./beaconON.jpg");
+ imgOriginalOFF = imread("./beaconOFF.jpg");
+ blur(imgOriginalON,imgOriginalON,Size(5,5));
+ blur(imgOriginalOFF,imgOriginalOFF,Size(5,5));
+// if(imgOriginalON.empty() || imgOriginalOFF.empty())
+// {
+//     cout << "can not open " << endl;
+//     return -1;
+// }
 
 
    cvtColor(imgOriginalON, imgHSVON, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
@@ -205,8 +207,8 @@ cap>>imgOriginalOFF;
             //break;
  //      }
  //   }
-	//waitKey(-1);
-}
+	waitKey(-1);
+//}
    return 0;
 
 }

@@ -109,7 +109,7 @@ void removenoise(Mat& image){
 //objectRows -> rows from the left that the object is in
 //objectCols -> columns from the top that the object is
 void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
-    double camera_height = 1.2;     // height of camera from ground in meters
+    double camera_height = .5;     // height of camera from ground in meters
     int camera_diagonal_angle = 69; // diagonal angle of view for camera in degrees
                                     // logitech c525 fov is 69 degrees, Samsung Galaxy S5 is 90 degrees
 
@@ -134,7 +134,7 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
     double tilt_camera_x_degrees = diff_rows * degrees_per_pixel; // positive -> tilt up, negative -> tilt down
     cout << "Turn robot " << turn_robot_x_degrees << " degrees.\n" << "Tilt camera " << tilt_camera_x_degrees << " degrees." << endl;
 
-    double tilted_degrees = 90 - tilt_camera_x_degrees; // assuming camera is parallel to ground (90 degrees)
+    double tilted_degrees = 90 + tilt_camera_x_degrees; // assuming camera is parallel to ground (90 degrees)
 
     double tilted_radians = tilted_degrees * 3.1415962 / 180.0; // c++ tan() function uses radians
 
@@ -143,114 +143,102 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
     double distance = height * tan(tilted_radians); // triangle formula for finding distance
 
     cout << "Distance is " << distance << " meters" << endl;
+
+
+    double turndeg=.0758*diff_cols-.2716;
+    cout<<"turn "<<turndeg<<" degrees"<<endl;
 }
 
 
 
 int main()
-  {
-  hsvParams hsv = {0,0,200,180,90,255};
+{
+    hsvParams hsv = {0,0,200,180,90,255};
 
-  //Set up blob detection parameters
-  SimpleBlobDetector::Params params;
-  params.minDistBetweenBlobs = 0.0f;
-  params.filterByInertia = true;
-  params.filterByConvexity = false;
-  params.filterByColor = false;
-  params.filterByCircularity = false;
-  params.filterByArea = true;
+    //Set up blob detection parameters
+    SimpleBlobDetector::Params params;
+    params.minDistBetweenBlobs = 0.0f;
+    params.filterByInertia = true;
+    params.filterByConvexity = false;
+    params.filterByColor = false;
+    params.filterByCircularity = false;
+    params.filterByArea = true;
 
-        params.minThreshold = 200;
-        params.maxThreshold = 250;
-        params.thresholdStep = 1;
+    params.minThreshold = 200;
+    params.maxThreshold = 250;
+    params.thresholdStep = 1;
 
-        params.minArea = 50;
-        params.minConvexity = 0.3;
-        params.minInertiaRatio = 0.15;
+    params.minArea = 50;
+    params.minConvexity = 0.3;
+    params.minInertiaRatio = 0.15;
 
-        params.maxArea = 8000;
-        params.maxConvexity = 10;
+    params.maxArea = 8000;
+    params.maxConvexity = 10;
 
 
-  vector<KeyPoint> keypoints;
+    vector<KeyPoint> keypoints;
 
-clock_t start;
-double duration=0;
+    clock_t start;
+    double duration=0;
 
-  const string filename("./webcam1.jpg");
-  string text("Object not found");
-  //Initialize camera
-  VideoCapture cap(1);
-  if ( !cap.isOpened() )  // if not success, exit program
-    {
-    cout << "Cannot open the web cam" << endl;
-    return -1;
+    const string filename("./pic2.jpg");
+    string text("Object not found");
+    //Initialize camera
+/*    VideoCapture cap(1);
+    if ( !cap.isOpened() ){
+        cout << "Cannot open the web cam" << endl;
+        return -1;
     }
+*/
+    while(true){
+        Mat img, imgHSV, imgTHRESH, out;
+img = imread(filename, CV_LOAD_IMAGE_COLOR);
+       // cap>>img;
 
-while(true){
-  Mat img, imgHSV, imgTHRESH, out;
-//  img = imread(filename, CV_LOAD_IMAGE_COLOR);
-cap>>img;
+        if(img.empty()){
+            cout << "can not open image" << endl;
+            return -1;
+        }
 
-  if(img.empty()){
-     cout << "can not open " << endl;
-     return -1;
-  }
+        //convert color to HSV, threshold and remove noise
+        cvtColor(img, imgHSV, COLOR_BGR2HSV);
+        findGrass(img,imgHSV);
+        cvtColor(img, imgHSV, COLOR_BGR2HSV);
 
-  //convert color to HSV, threshold and remove noise
-  cvtColor(img, imgHSV, COLOR_BGR2HSV);
-  findGrass(img,imgHSV);
-  cvtColor(img, imgHSV, COLOR_BGR2HSV);
+        inRange(imgHSV, Scalar(hsv.hL, hsv.sL, hsv.vL), Scalar(hsv.hH, hsv.sH, hsv.vH), imgTHRESH);
+        removenoise(imgTHRESH);
 
-  inRange(imgHSV, Scalar(hsv.hL, hsv.sL, hsv.vL),
-         Scalar(hsv.hH, hsv.sH, hsv.vH), imgTHRESH);
-  removenoise(imgTHRESH);
+        namedWindow("Input", WINDOW_AUTOSIZE);
+        namedWindow("Detection", WINDOW_AUTOSIZE);
 
- // namedWindow("Input", WINDOW_AUTOSIZE);
- // namedWindow("Detection", WINDOW_AUTOSIZE);
+        Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
+        blobDetect->detect( imgTHRESH, keypoints );
 
-  //Initialize blobdetector with predefine parameters
-  //lab computer version
-//  SimpleBlobDetector blobDetect = SimpleBlobDetector(params);
-//  blobDetect.detect( imgTHRESH, keypoints );
-  //opencv 3.0 version
-  Ptr<SimpleBlobDetector> blobDetect = SimpleBlobDetector::create(params);
-  blobDetect->detect( imgTHRESH, keypoints );
+        drawKeypoints(imgTHRESH, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
+        //Circle blobs
+        for(int i = 0; i < keypoints.size(); i++)
+            circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 20, 8);
 
-  drawKeypoints(imgTHRESH, keypoints, out, CV_RGB(0,0,0), DrawMatchesFlags::DEFAULT);
-  //Circle blobs
-  for(int i = 0; i < keypoints.size(); i++)
-    circle(out, keypoints[i].pt, 1.5*keypoints[i].size, CV_RGB(0,255,0), 20, 8);
+        if(keypoints.size() == 1){
+            cout<<endl<<endl<<"Object Found"<<endl;
+            tilt_turn_degrees(img, keypoints[0].pt.y, keypoints[0].pt.x);
+        }
+        else{
+            cout<<"No Object Found"<<endl;
+        }
 
-   if(keypoints.size() == 1){
-    text = "Object Found";
-    cout<<endl<<endl<<"Object Found"<<endl;
-    //cout<<out.rows<<" "<<out.cols<<endl;
-    //cout<<keypoints[0].pt.x<<" "<<keypoints[0].pt.y<<endl;
-
-    tilt_turn_degrees(img, keypoints[0].pt.y, keypoints[0].pt.x);
-  }
-  if(keypoints.size() > 1){
-    text = "Error";
-    cout<<"No Object Found"<<endl;
-  }
-
-  putText(out, text, Point(100,200), FONT_HERSHEY_PLAIN, 20, Scalar(0, 0, 255), 20);
-
-  //for(;;)
-    //{
-    //imshow("Input", img);
-    //imshow("Detection", out);
-    //if(waitKey(30) >= 0 ) break;
-    //}
-
-   duration=0;
-   start = std::clock();
-   while(duration<4){
-       cap>>img;
-       duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
-   }
-}
+        imshow("Input", img);
+        imshow("Detection", out);
+        waitKey(-1);
+/*
+        duration=0;
+        start = std::clock();
+        while(duration<4){
+            cap>>img;
+            duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+        }
+  */
+    }
   return 0;
   }
 
