@@ -35,22 +35,19 @@ double duration=0;
   const string filename("./webcam1.jpg");
   string text("Object not found");
   //Initialize camera
-  VideoCapture cap;
-  if(cam){
-	  VideoCapture cap(1);
+	  VideoCapture cap(0);
 	  if ( !cap.isOpened() )  // if not success, exit program
 	   {
 	    cout << "Cannot open the web cam" << endl;
 	    return -1;
 	   }
-   }
 
 while(true){
   Mat img, imgHSV, imgTHRESH, out;
   img = imread(filename, CV_LOAD_IMAGE_COLOR);
   
   if(cam){
-	cap>>img;
+	img = getPic(cap);
   }
 
   if(img.empty()){
@@ -88,6 +85,11 @@ while(true){
     text = "Error";
     cout<<"No Object Found"<<endl;
   }
+    imshow("Original 3", img); //show the original image
+	imshow("imgHSV", img);
+imshow("ingTHRESH", img);
+    imshow("Diff", out);
+    waitKey(-1);
 
    duration=0;
    start = std::clock();

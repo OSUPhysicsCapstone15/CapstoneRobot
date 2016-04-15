@@ -12,8 +12,8 @@
 using namespace cv;
 using namespace std;
 
-const float WIDTH = 61; //inches
-const float HEIGHT = 55; //inches
+const float WIDTH = 5.015625; //meters
+const float HEIGHT = 5.96875; //meters
 
 struct beacon_loc {
 	float angle_from_robot=0; //degrees for all angles
@@ -84,10 +84,10 @@ bool beaconLocation(vector<KeyPoint> keyPoints, beacon_loc *b_loc) {
 
 int main(int argc, char* argv[]) {
 	beacon_loc b_loc;
-	vector<KeyPoint> points = {KeyPoint(460.97, 330.58, 1),
-								KeyPoint(351.536, 208.6, 1),
-								KeyPoint(350.863, 409.35, 1),
-								KeyPoint(241.621, 325.604, 1)
+	vector<KeyPoint> points = {KeyPoint(361, 235, 1),
+								KeyPoint(310, 301, 1),
+								KeyPoint(407, 296, 1),
+								KeyPoint(363, 362, 1)
 	};
 	//do stuff
 	beaconLocation(points, &b_loc);
