@@ -102,8 +102,6 @@ void setup()
 
 void loop()
 {  
-
-  
   if(digitalRead(3) && !armDone) {
     armDone = true; 
     grab_msg.data = 1;
