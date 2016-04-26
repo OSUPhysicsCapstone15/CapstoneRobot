@@ -11,6 +11,7 @@
 
 boolean paused = false; // Whether or not the motors have received a paused command
 boolean armDone = false;
+boolean firstStart = false;
 
 ros::NodeHandle nh;
 std_msgs::Float32 leftReturn_msg;
@@ -27,6 +28,7 @@ Servo rightVictor;
 Servo leftVictor;
 int rightVictorPin = 10;
 int leftVictorPin = 11;
+double blinkTime = 0;
 
 void leftMotor(const std_msgs::Float32& msg){
   // Set the left motor speed given by ROS in the topic "Motors"
@@ -34,6 +36,9 @@ void leftMotor(const std_msgs::Float32& msg){
     leftVictor.write((int)((msg.data*80.0)+90));
     leftReturn_msg.data = msg.data;
     pub_leftReturn.publish( &leftReturn_msg);
+    if(msg.data !=0) {
+      firstStart = true; 
+    }
   } 
   else {
     leftReturn_msg.data = 0;
@@ -47,6 +52,9 @@ void rightMotor(const std_msgs::Float32& msg){
     rightVictor.write((int)(-1*(msg.data*80.0)+90));
     rightReturn_msg.data = msg.data;
     pub_rightReturn.publish( &rightReturn_msg);
+    if(msg.data !=0) {
+      firstStart = true; 
+    }
   } 
   else {
     rightReturn_msg.data = 0;
@@ -71,8 +79,12 @@ void setup()
   pinMode(13, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(3, INPUT);
+  pinMode(6, INPUT); // Stop Button
+  pinMode(7, INPUT); // Pause Relay
+  pinMode(8, OUTPUT); // Light
   digitalWrite(13, LOW); // LED is on unless we are moving
   digitalWrite(5, LOW);
+  digitalWrite(8, LOW);
   rightVictor.attach(rightVictorPin);
   leftVictor.attach(leftVictorPin);
   rightVictor.write(90);
@@ -90,8 +102,6 @@ void setup()
 
 void loop()
 {  
-
-  
   if(digitalRead(3) && !armDone) {
     armDone = true; 
     grab_msg.data = 1;
@@ -100,7 +110,19 @@ void loop()
     armDone = false;  
   }
   nh.spinOnce(); // Check for updates with ROS
-  delay(0.01);
+  if(millis() - blinkTime > 2000) {
+    blinkTime = millis();
+  }
+  if(!digitalRead(6)) { // There's power
+    digitalWrite(8, HIGH);
+  } else if(digitalRead(7) && firstStart) { // It's enabled
+    if(millis() > 1000) {
+      digitalWrite(8, HIGH); 
+    } else {
+      digitalWrite(8, LOW); 
+    }
+  }
+  delay(0.1);
 }
 
 
