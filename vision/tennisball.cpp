@@ -5,6 +5,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <vector>
+#include "sys/time.h"
 
 using namespace cv;
 using namespace std;
@@ -33,6 +34,31 @@ Mat srcBlur;
 Canny(srcBlur, dst, 50, 200, 3);
  cvtColor(dst, cdst, CV_GRAY2BGR);
  imshow("detected lines blur", cdst);
+}
+
+Mat getPic(VideoCapture cap)
+{
+    Mat img;
+    struct timeval tv1,tv2;
+    double duration = 0;
+    double timer = .2;
+
+    cout << "Taking pic in " << timer << " s"<<endl;
+
+    gettimeofday(&tv1, NULL);
+    duration=0;
+
+    while(duration<timer)
+    {
+        cap >> img;
+        gettimeofday(&tv2, NULL);
+        duration = ((double)((tv2.tv_sec*1000000+tv2.tv_usec)-(tv1.tv_sec*1000000+tv1.tv_usec)))/1000000.00;
+    }
+
+    cout << "Taking pic" << endl;
+    cap >> img;
+
+    return img;
 }
 
 void ellipse(Mat &src)
@@ -160,6 +186,14 @@ void findGrass(Mat &src, Mat &HSV){
 Point computeCentroid(const cv::Mat &mask) {
     Moments m = moments(mask, true);
     Point center(m.m10/m.m00, m.m01/m.m00);
+	cout<<endl<<"center is at: "<<center.x;
+	cout<<endl<<center.y<<endl;
+	float xDiff =  (float)mask.cols/2.0 - center.x;
+	float xAngle = .0901 * xDiff - .2716;
+	    cout<<"angle: "<<xAngle<<endl;
+float distToSample =.0000442*center.y*center.y-.0527*center.y+21.88;
+		cout<<"dist: "<<distToSample<<endl;
+
     return center;
 }
 
@@ -168,7 +202,7 @@ Point computeCentroid(const cv::Mat &mask) {
 
  int main( int argc, char** argv )
  {
-    VideoCapture cap(1); //capture the video from web cam
+    VideoCapture cap(0); //capture the video from web cam
 
     if ( !cap.isOpened() )  // if not success, exit program
     {
@@ -261,16 +295,16 @@ Mat blobtest=bigBlob;
 
 //cout<<center<<endl;
 
-   //imshow("Thresholded Image", imgThresholded); //show the thresholded image
-   //imshow("blob Image", blobtest);
+   imshow("Thresholded Image", imgThresholded); //show the thresholded image
+   imshow("blob Image", blobtest);
   imshow("Original", imgOriginal); //show the original image
 
- //       if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
- //      {
- //           cout << "esc key is pressed by user" << endl;
-            //break;
- //      }
- //   }
+       if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
+     {
+          cout << "esc key is pressed by user" << endl;
+            break;
+      }
+    
 }
    return 0;
 

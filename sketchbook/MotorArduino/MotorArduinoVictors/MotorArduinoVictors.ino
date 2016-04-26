@@ -100,7 +100,7 @@ void loop()
     armDone = false;  
   }
   nh.spinOnce(); // Check for updates with ROS
-  delay(0.1);
+  delay(0.01);
 }
 
 
