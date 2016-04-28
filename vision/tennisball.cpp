@@ -291,7 +291,8 @@ Mat bigBlob=findBiggestBlob(imgThresholded);
 
 Point center=computeCentroid(bigBlob);
 Mat blobtest=bigBlob;
-//circle(blobtest, center, 5, Scalar(100), -1, 8, 0);
+circle(blobtest, center, 5, Scalar(100), -1, 8, 0);
+circle(blobtest, center, 100, CV_RGB(0,255,0), 20, 8);
 
 //cout<<center<<endl;
 

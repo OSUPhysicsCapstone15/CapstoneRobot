@@ -11,7 +11,7 @@
 
 boolean paused = false; // Whether or not the motors have received a paused command
 boolean armDone = false;
-boolean firstStart = false;
+boolean firstStart = true;
 
 ros::NodeHandle nh;
 std_msgs::Float32 leftReturn_msg;
@@ -110,17 +110,20 @@ void loop()
     armDone = false;  
   }
   nh.spinOnce(); // Check for updates with ROS
-  if(millis() - blinkTime > 2000) {
+  if((millis() - blinkTime) > 1400) {
     blinkTime = millis();
   }
-  if(!digitalRead(6)) { // There's power
-    digitalWrite(8, HIGH);
-  } else if(digitalRead(7) && firstStart) { // It's enabled
-    if(millis() > 1000) {
-      digitalWrite(8, HIGH); 
+  if(digitalRead(7) && firstStart) { // It's enabled
+    if((millis()-blinkTime) > 700) {
+      digitalWrite(8, HIGH);
+      digitalWrite(13, HIGH); 
     } else {
-      digitalWrite(8, LOW); 
+      digitalWrite(8, LOW);
+      digitalWrite(13, LOW); 
     }
+  } else {
+    digitalWrite(8, HIGH);
+    digitalWrite(13, HIGH);
   }
   delay(0.1);
 }
