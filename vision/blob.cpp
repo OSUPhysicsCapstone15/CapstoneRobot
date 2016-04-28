@@ -48,7 +48,7 @@ return dst;
 
 void findGrass(Mat &src, Mat &HSV){
   int iLowH = 30;
-  int iHighH = 50;
+  int iHighH = 70;
 
   int iLowS = 60;
   int iHighS = 255;
@@ -153,7 +153,7 @@ void tilt_turn_degrees(Mat img, int object_rows, int object_cols){
 
 int main()
 {
-    hsvParams hsv = {0,0,200,180,90,255};
+    hsvParams hsv = {80,60,0,130,255,255};
 
     //Set up blob detection parameters
     SimpleBlobDetector::Params params;
@@ -168,7 +168,7 @@ int main()
     params.maxThreshold = 250;
     params.thresholdStep = 1;
 
-    params.minArea = 50;
+    params.minArea = 10;
     params.minConvexity = 0.3;
     params.minInertiaRatio = 0.15;
 
@@ -181,7 +181,7 @@ int main()
     clock_t start;
     double duration=0;
 
-    const string filename("./pic2.jpg");
+    const string filename("./samplePics/5ft2.jpg");
     string text("Object not found");
     //Initialize camera
 /*    VideoCapture cap(1);
@@ -190,6 +190,19 @@ int main()
         return -1;
     }
 */
+
+    namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+
+ cvCreateTrackbar("LowH", "Control", &hsv.hL, 255); //Hue (0 - 179)
+ cvCreateTrackbar("HighH", "Control", &hsv.hH, 255);
+
+  cvCreateTrackbar("LowS", "Control", &hsv.sL, 255); //Saturation (0 - 255)
+ cvCreateTrackbar("HighS", "Control", &hsv.sH, 255);
+
+  cvCreateTrackbar("LowV", "Control", &hsv.vL, 255); //Value (0 - 255)
+ cvCreateTrackbar("HighV", "Control", &hsv.vH, 255);
+
+
     while(true){
         Mat img, imgHSV, imgTHRESH, out;
 img = imread(filename, CV_LOAD_IMAGE_COLOR);
@@ -229,15 +242,11 @@ img = imread(filename, CV_LOAD_IMAGE_COLOR);
 
         imshow("Input", img);
         imshow("Detection", out);
-        waitKey(-1);
-/*
-        duration=0;
-        start = std::clock();
-        while(duration<4){
-            cap>>img;
-            duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
-        }
-  */
+        if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
+       {
+            cout << "esc key is pressed by user" << endl;
+            break;
+       }
     }
   return 0;
   }
