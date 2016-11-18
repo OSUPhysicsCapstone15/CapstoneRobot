@@ -2,7 +2,7 @@
 #include <Servo.h>  // Loads 'Servo' Library
 Servo ClawServo;    // Define ClawServo variable of class 'Servo'
 
-int LED_PIN = 12;
+int LED_PIN = 12;   // LED for testing purposes
 int state; 
 
 // the setup function runs once when you press reset or power the board
@@ -11,7 +11,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   Serial.begin(9600);
 
-  ClawServo.attach(10); // Attack Claw to Pin 9
+  ClawServo.attach(10); // Attach Claw to Pin 10
 }
 
 // the loop function runs over and over again forever
